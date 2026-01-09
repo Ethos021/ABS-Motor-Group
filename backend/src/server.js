@@ -35,8 +35,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check endpoint
-app.get('/health', async (req, res) => {
+// Health check endpoint (with light rate limiting)
+app.get('/health', apiLimiter, async (req, res) => {
   try {
     await pool.query('SELECT 1');
     res.json({
