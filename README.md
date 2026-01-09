@@ -113,7 +113,7 @@ All entities include automatic timestamps and foreign key relationships.
    npm run dev
    ```
 
-3. Access the application at `http://localhost:5173`
+3. Access the application at `http://localhost:8080`
 4. Backend API at `http://localhost:3000`
 
 ## License
