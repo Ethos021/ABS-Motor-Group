@@ -43,7 +43,7 @@ class Enquiry {
     }
 
     if (filters.assignedStaffId) {
-      query += ` AND assignedStaffId = $${paramCount}`;
+      query += ` AND assignedstaffid = $${paramCount}`;
       values.push(filters.assignedStaffId);
       paramCount++;
     }

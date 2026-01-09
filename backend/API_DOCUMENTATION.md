@@ -425,7 +425,16 @@ Requires admin authentication.
 
 ## Rate Limiting
 
-No rate limiting is currently implemented. Consider adding rate limiting in production.
+Rate limiting is implemented to protect against abuse:
+
+- **Authentication endpoints** (`/api/auth/register`, `/api/auth/login`): 5 requests per 15 minutes per IP
+- **Public endpoints** (enquiry and booking creation): 50 requests per 15 minutes per IP  
+- **All API endpoints**: 100 requests per 15 minutes per IP (general limit)
+
+Rate limit information is included in response headers:
+- `RateLimit-Limit`: Maximum requests allowed
+- `RateLimit-Remaining`: Remaining requests in current window
+- `RateLimit-Reset`: Seconds until the rate limit resets
 
 ## CORS
 
