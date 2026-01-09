@@ -36,7 +36,7 @@ services:
       # IMPORTANT: Change this secret in production! Use a secure random value.
       JWT_SECRET: change_this_in_production_use_secure_random_value
       JWT_EXPIRES_IN: 7d
-      CORS_ORIGIN: http://localhost
+      CORS_ORIGIN: http://localhost:8080
     ports:
       - "3000:3000"
     depends_on:
@@ -54,7 +54,7 @@ services:
       dockerfile: Dockerfile
     container_name: abs-frontend
     ports:
-      - "80:80"
+      - "8080:80"
     depends_on:
       - backend
     networks:
