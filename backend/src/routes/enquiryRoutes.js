@@ -8,11 +8,12 @@ import {
   searchEnquiries
 } from '../controllers/enquiryController.js';
 import { optionalAuth, authenticate } from '../middleware/auth.js';
+import { publicLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
-// Public routes (can create enquiries without auth)
-router.post('/', optionalAuth, createEnquiry);
+// Public routes (can create enquiries without auth) with rate limiting
+router.post('/', publicLimiter, optionalAuth, createEnquiry);
 
 // Protected routes
 router.get('/', authenticate, getEnquiries);

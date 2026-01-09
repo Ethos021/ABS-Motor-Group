@@ -8,11 +8,12 @@ import {
   getBookingsByDateRange
 } from '../controllers/bookingController.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
+import { publicLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
-// Public routes (can create bookings without auth)
-router.post('/', optionalAuth, createBooking);
+// Public routes (can create bookings without auth) with rate limiting
+router.post('/', publicLimiter, optionalAuth, createBooking);
 
 // Protected routes
 router.get('/', authenticate, getBookings);

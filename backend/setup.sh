@@ -58,8 +58,14 @@ echo ""
 echo "Creating database..."
 echo "Enter your PostgreSQL password when prompted:"
 
-DB_NAME=$(grep DB_NAME .env | cut -d '=' -f2)
-createdb $DB_NAME 2>/dev/null
+# Extract DB_NAME from .env file, handling quotes and spaces
+DB_NAME=$(grep "^DB_NAME=" .env | cut -d '=' -f2- | sed 's/^["'\'']*//;s/["'\'']*$//' | xargs)
+if [ -z "$DB_NAME" ]; then
+    echo "❌ Could not extract DB_NAME from .env file"
+    exit 1
+fi
+
+createdb "$DB_NAME" 2>/dev/null
 
 if [ $? -eq 0 ]; then
     echo "✓ Database '$DB_NAME' created"
