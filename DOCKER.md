@@ -12,14 +12,20 @@ This guide explains how to run the ABS Motor Group application using Docker.
 To run the entire application stack (frontend, backend, and database):
 
 ```bash
-docker-compose up
+# Navigate to the root directory
+cd /path/to/ABS-Motor-Group
+
+# Start all services
+docker compose up
 ```
 
 To run in detached mode (background):
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
+
+**Important**: Make sure to run `docker compose up` from the **root directory** to start all three services (frontend, backend, and database). The `backend/docker-compose.yml` file is for backend-only development and does not include the frontend service.
 
 The services will be available at:
 - **Frontend**: http://localhost
@@ -53,6 +59,17 @@ The Docker setup includes three services:
   - Production-optimized build
   - Gzip compression
   - Static asset caching
+
+## Backend-Only Development
+
+If you only want to develop the backend API without the frontend, you can use the docker-compose file in the `backend` directory:
+
+```bash
+cd backend
+docker compose up
+```
+
+This will start only the backend and PostgreSQL services. You can then develop the frontend separately using `npm run dev` from the root directory, which will run on port 5173.
 
 ## Docker Commands
 

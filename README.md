@@ -4,15 +4,19 @@ A modern web application for ABS Motor Group with a React frontend and Node.js/P
 
 ## Quick Start with Docker 🐳
 
-The easiest way to run the entire application:
+The easiest way to run the entire application (frontend + backend + database):
 
 ```bash
-docker-compose up
+# Run from the root directory
+docker compose up
 ```
 
 Access the application at:
 - **Frontend**: http://localhost
 - **Backend API**: http://localhost:3000
+- **Database**: localhost:5432
+
+**Important**: Make sure to run `docker compose up` from the **root directory** of the project to start all services including the frontend. Running it from the `backend` directory will only start the backend and database.
 
 For detailed Docker instructions, see [DOCKER.md](./DOCKER.md)
 
@@ -73,13 +77,13 @@ npm run migrate
 npm start
 ```
 
-Or use Docker:
+For backend-only Docker setup (no frontend):
 ```bash
 cd backend
-docker-compose up
+docker compose up
 ```
 
-**Note**: For running the complete application (frontend + backend + database), use the Docker Compose setup from the root directory. See [DOCKER.md](../DOCKER.md) for details.
+**Note**: The `backend/docker-compose.yml` only starts the backend and database. For running the **complete application** (frontend + backend + database), use `docker compose up` from the **root directory**. See [DOCKER.md](./DOCKER.md) for details.
 
 ## API Documentation
 
