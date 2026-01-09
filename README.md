@@ -7,7 +7,7 @@ A modern web application for ABS Motor Group with a React frontend and Node.js/P
 The easiest way to run the entire application (frontend + backend + database):
 
 ```bash
-# Run from the root directory
+# Navigate to the root directory and start all services
 docker compose up
 ```
 
