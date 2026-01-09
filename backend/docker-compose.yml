@@ -1,4 +1,10 @@
-version: '3.8'
+# This docker-compose.yml is for backend development only.
+# It starts ONLY the backend and PostgreSQL services.
+# 
+# To run the COMPLETE application (frontend + backend + database):
+# Run `docker compose up` from the ROOT directory of the project.
+#
+# Use this file only if you're developing the backend independently.
 
 services:
   postgres:
