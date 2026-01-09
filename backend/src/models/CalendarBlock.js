@@ -1,9 +1,12 @@
 import pool from '../config/database.js';
+import { filterAllowedFields, ALLOWED_FIELDS } from '../utils/validation.js';
 
 class CalendarBlock {
   static async create(data) {
-    const fields = Object.keys(data).filter(key => data[key] !== undefined);
-    const values = fields.map(key => data[key]);
+    // Filter to only allowed fields
+    const filteredData = filterAllowedFields(data, ALLOWED_FIELDS.calendarBlock);
+    const fields = Object.keys(filteredData);
+    const values = fields.map(key => filteredData[key]);
     const placeholders = fields.map((_, i) => `$${i + 1}`);
     
     const query = `
@@ -82,8 +85,10 @@ class CalendarBlock {
   }
 
   static async update(id, data) {
-    const fields = Object.keys(data).filter(key => data[key] !== undefined);
-    const values = fields.map(key => data[key]);
+    // Filter to only allowed fields
+    const filteredData = filterAllowedFields(data, ALLOWED_FIELDS.calendarBlock);
+    const fields = Object.keys(filteredData);
+    const values = fields.map(key => filteredData[key]);
     const setClause = fields.map((key, i) => `${key} = $${i + 1}`).join(', ');
     
     const query = `
