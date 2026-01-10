@@ -32,7 +32,6 @@ This is a Vite+React app with a modern UI built using:
 - React Router
 - Tailwind CSS
 - Radix UI components
-- Base44 SDK (optional)
 
 ### Running the Frontend
 
