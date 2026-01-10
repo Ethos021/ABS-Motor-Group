@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { localApi } from "@/api/localApiClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AdminRoute from "../components/auth/AdminRoute";
 import { Button } from "@/components/ui/button";
@@ -33,18 +33,18 @@ export default function AdminCalendar() {
 
   const { data: blocks, isLoading } = useQuery({
     queryKey: ['calendarBlocks'],
-    queryFn: () => base44.entities.CalendarBlock.list('-start_datetime'),
+    queryFn: () => localApi.entities.CalendarBlock.list('-start_datetime'),
     initialData: []
   });
 
   const { data: staff } = useQuery({
     queryKey: ['staff'],
-    queryFn: () => base44.entities.Staff.list(),
+    queryFn: () => localApi.entities.Staff.list(),
     initialData: []
   });
 
   const createBlockMutation = useMutation({
-    mutationFn: (data) => base44.entities.CalendarBlock.create(data),
+    mutationFn: (data) => localApi.entities.CalendarBlock.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendarBlocks'] });
       setShowNewBlock(false);
@@ -62,7 +62,7 @@ export default function AdminCalendar() {
   });
 
   const updateBlockMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.CalendarBlock.update(id, data),
+    mutationFn: ({ id, data }) => localApi.entities.CalendarBlock.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendarBlocks'] });
       setSelectedBlock(null);
@@ -71,7 +71,7 @@ export default function AdminCalendar() {
   });
 
   const deleteBlockMutation = useMutation({
-    mutationFn: (id) => base44.entities.CalendarBlock.delete(id),
+    mutationFn: (id) => localApi.entities.CalendarBlock.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendarBlocks'] });
       setSelectedBlock(null);

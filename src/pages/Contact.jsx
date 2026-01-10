@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { base44 } from "@/api/base44Client";
+import { localApi } from "@/api/localApiClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,7 +53,7 @@ export default function Contact() {
         "WhatsApp": "whatsapp"
       };
 
-      await base44.entities.Enquiry.create({
+      await localApi.entities.Enquiry.create({
         firstName,
         lastName,
         mobile: formData.phone,

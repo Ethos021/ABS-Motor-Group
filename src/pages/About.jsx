@@ -35,8 +35,6 @@ export default function About() {
       description: "Sell your vehicle directly to us with an easy and fast turnaround time."
     }
   ];
-  
-  const userLogoUrl = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d3e32641e7d562fa3996cf/c9b06a35a_8.jpg";
 
   return (
     <div className="min-h-screen bg-zinc-950">
