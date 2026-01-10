@@ -7,12 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
-import { base44 } from "@/api/base44Client";
+import { localApi } from "@/api/localApiClient";
 
 const heroImages = [
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d3e32641e7d562fa3996cf/f5c9dcd71_DSC01083.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d3e32641e7d562fa3996cf/27a855d4d_DSC02396.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d3e32641e7d562fa3996cf/ee7f57bf5_DSC02406.jpg"
+  "https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1493238792000-8113da705763?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1511910849309-0dffb8785146?q=80&w=1600&auto=format&fit=crop"
 ];
 
 export default function HeroSection() {
@@ -43,7 +43,7 @@ export default function HeroSection() {
   }, []);
 
   const loadVehicles = async () => {
-    const data = await base44.entities.Vehicle.list();
+    const data = await localApi.entities.Vehicle.list();
     setVehicles(data);
   };
 

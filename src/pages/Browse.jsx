@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { base44 } from "@/api/base44Client";
+import { localApi } from "@/api/localApiClient";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -118,7 +118,7 @@ export default function Browse() {
   const loadVehicles = async () => {
     try {
       // Fetch vehicles from database
-      const data = await base44.entities.Vehicle.list();
+      const data = await localApi.entities.Vehicle.list();
       setVehicles(data);
       
       // Apply URL filters first

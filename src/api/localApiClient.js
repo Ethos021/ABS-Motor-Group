@@ -212,7 +212,7 @@ const enquiryStore = createStore(enquirySeed, { defaults: { status: "new" } });
 const calendarStore = createStore(calendarSeed, { defaults: { is_active: true } });
 const bookingStore = createStore(bookingSeed, { defaults: { status: "pending" } });
 
-export const base44 = {
+export const localApi = {
   entities: {
     Vehicle: vehicleStore,
     Enquiry: enquiryStore,

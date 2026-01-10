@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { localApi } from "@/api/localApiClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -76,7 +76,7 @@ export default function Sell() {
       const [firstName, ...lastNameParts] = formData.contactName.trim().split(' ');
       const lastName = lastNameParts.join(' ') || firstName;
 
-      await base44.entities.Enquiry.create({
+      await localApi.entities.Enquiry.create({
         enquiry_type: "sell_vehicle",
         firstName: firstName,
         lastName: lastName,

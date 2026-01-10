@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { localApi } from "@/api/localApiClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AdminRoute from "../components/auth/AdminRoute";
 import { Button } from "@/components/ui/button";
@@ -20,18 +20,18 @@ export default function AdminEnquiries() {
 
   const { data: enquiries, isLoading } = useQuery({
     queryKey: ['enquiries'],
-    queryFn: () => base44.entities.Enquiry.list('-created_date'),
+    queryFn: () => localApi.entities.Enquiry.list('-created_date'),
     initialData: []
   });
 
   const { data: staff } = useQuery({
     queryKey: ['staff'],
-    queryFn: () => base44.entities.Staff.list(),
+    queryFn: () => localApi.entities.Staff.list(),
     initialData: []
   });
 
   const updateEnquiryMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Enquiry.update(id, data),
+    mutationFn: ({ id, data }) => localApi.entities.Enquiry.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['enquiries'] });
       setSelectedEnquiry(null);
