@@ -19,14 +19,15 @@ export default function AdminRoute({ children }) {
       if (!currentUser || currentUser.role !== 'admin') {
         // Not authorized - redirect to home
         navigate(createPageUrl('Home'));
-        return;
+        return setLoading(false);
       }
       
       setUser(currentUser);
-      setLoading(false);
     } catch (error) {
-      // Not authenticated - redirect to login
-      base44.auth.redirectToLogin(window.location.pathname);
+      // Not authenticated - redirect to home without external login
+      navigate(createPageUrl('Home'));
+    } finally {
+      setLoading(false);
     }
   };
 
