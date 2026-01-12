@@ -28,7 +28,7 @@ docker compose up -d
 **Important**: Make sure to run `docker compose up` from the **root directory** to start all three services (frontend, backend, and database). The `backend/docker-compose.yml` file is for backend-only development and does not include the frontend service.
 
 The services will be available at:
-- **Frontend**: http://localhost:8080
+- **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:3000
 - **PostgreSQL**: localhost:5432
 
@@ -53,7 +53,7 @@ The Docker setup includes three services:
   - RESTful API endpoints
 
 ### 3. Frontend (`frontend`)
-- **Port**: 8080
+- **Port**: 5173
 - **Technology**: React/Vite with Nginx
 - **Features**:
   - Production-optimized build
@@ -216,7 +216,7 @@ If you get a port conflict error:
 
 ```bash
 # Check what's using the port
-lsof -i :8080  # For frontend
+lsof -i :5173  # For frontend
 lsof -i :3000  # For backend
 lsof -i :5432  # For postgres
 
@@ -285,7 +285,7 @@ PORT=3000
 NODE_ENV=production
 JWT_SECRET=your_jwt_secret_here
 JWT_EXPIRES_IN=7d
-CORS_ORIGIN=http://localhost:8080
+CORS_ORIGIN=http://localhost:5173
 ```
 
 Then reference them in docker-compose.yml:

@@ -12,7 +12,7 @@ docker compose up
 ```
 
 Access the application at:
-- **Frontend**: http://localhost:8080
+- **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:3000
 - **Database**: localhost:5432
 
@@ -112,7 +112,7 @@ All entities include automatic timestamps and foreign key relationships.
    npm run dev
    ```
 
-3. Access the application at `http://localhost:8080`
+3. Access the application at `http://localhost:5173`
 4. Backend API at `http://localhost:3000`
 
 ## License
