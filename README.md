@@ -101,19 +101,58 @@ All entities include automatic timestamps and foreign key relationships.
 
 ## Development
 
-1. Start the backend:
+### Option 1: Local Development (Frontend via npm, Backend via Docker) - **Recommended**
+
+This is the recommended approach for active development as it provides hot-reloading for the frontend while keeping the backend and database in Docker.
+
+1. **Start the backend and database with Docker**:
+   ```bash
+   # From root directory
+   docker compose -f docker-compose.dev.yml up
+   
+   # OR from backend directory
+   cd backend
+   docker compose up
+   ```
+
+2. **Start the frontend locally** (in a new terminal):
+   ```bash
+   # From root directory
+   npm install
+   npm run dev
+   ```
+
+3. **Access the application**:
+   - Frontend: http://localhost:8080
+   - Backend API: http://localhost:3000
+   - phpMyAdmin: http://localhost:8081
+
+The frontend dev server is configured to proxy API requests to the backend running in Docker, so everything works seamlessly.
+
+### Option 2: Full Local Development (No Docker)
+
+1. **Start the backend locally**:
    ```bash
    cd backend
+   npm install
+   cp .env.example .env
+   # Edit .env with your database credentials
+   npm run migrate
    npm run dev
    ```
 
-2. Start the frontend (in a new terminal):
+2. **Start the frontend** (in a new terminal):
    ```bash
+   # From root directory
+   npm install
    npm run dev
    ```
 
-3. Access the application at `http://localhost:8080`
-4. Backend API at `http://localhost:3000`
+3. **Access the application**:
+   - Frontend: http://localhost:8080
+   - Backend API: http://localhost:3000
+
+**Note**: You'll need MySQL installed and running locally for this option.
 
 ## License
 

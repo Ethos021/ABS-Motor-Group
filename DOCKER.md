@@ -7,9 +7,47 @@ This guide explains how to run the ABS Motor Group application using Docker.
 - Docker (version 20.10 or higher)
 - Docker Compose (version 2.0 or higher)
 
-## Quick Start
+## Development Setup (Recommended)
 
-To run the entire application stack (frontend, backend, and database):
+For active development, it's recommended to run the frontend locally with hot-reloading while keeping the backend and database in Docker. This provides the best development experience.
+
+### Frontend via npm run dev, Backend via Docker
+
+1. **Start the backend and database**:
+   ```bash
+   # From root directory
+   docker compose -f docker-compose.dev.yml up
+   
+   # OR from backend directory
+   cd backend
+   docker compose up
+   ```
+
+2. **Start the frontend** (in a new terminal):
+   ```bash
+   # From root directory
+   npm install
+   npm run dev
+   ```
+
+The services will be available at:
+- **Frontend (with hot-reload)**: http://localhost:8080
+- **Backend API**: http://localhost:3000
+- **MySQL**: localhost:3306
+- **phpMyAdmin**: http://localhost:8081
+
+The frontend dev server automatically proxies API requests to the backend running in Docker at `http://localhost:3000`, so no additional configuration is needed.
+
+### Benefits of this approach:
+- ✅ Fast frontend hot-reloading for rapid UI development
+- ✅ Backend and database in isolated Docker environment
+- ✅ No need to install MySQL locally
+- ✅ Consistent backend environment across team
+- ✅ Easy database management via phpMyAdmin
+
+## Production Setup (All Services in Docker)
+
+To run the entire application stack exactly as it would run in production:
 
 ```bash
 # Navigate to the root directory
@@ -25,10 +63,10 @@ To run in detached mode (background):
 docker compose up -d
 ```
 
-**Important**: Make sure to run `docker compose up` from the **root directory** to start all three services (frontend, backend, and database). The `backend/docker-compose.yml` file is for backend-only development and does not include the frontend service.
+**Note**: In development mode (using `docker-compose.dev.yml`), the frontend is not included in Docker. Instead, you run it locally with `npm run dev` for hot-reloading capabilities.
 
 The services will be available at:
-- **Frontend**: http://localhost:8080
+- **Frontend**: http://localhost:8080 (via Nginx in production, via Vite dev server in development)
 - **Backend API**: http://localhost:3000
 - **MySQL**: localhost:3306
 - **phpMyAdmin**: http://localhost:8081
@@ -63,22 +101,13 @@ The Docker setup includes four services:
 
 ### 4. Frontend (`frontend`)
 - **Port**: 8080
-- **Technology**: React/Vite with Nginx
+- **Technology**: React/Vite with Nginx (in production mode)
 - **Features**:
   - Production-optimized build
   - Gzip compression
   - Static asset caching
 
-## Backend-Only Development
-
-If you only want to develop the backend API without the frontend, you can use the docker-compose file in the `backend` directory:
-
-```bash
-cd backend
-docker compose up
-```
-
-This will start only the backend and PostgreSQL services. You can then develop the frontend separately using `npm run dev` from the root directory, which will run on port 5173.
+**Note**: In development mode (using `docker-compose.dev.yml`), the frontend is not included in Docker. Instead, you run it locally with `npm run dev` for hot-reloading capabilities.
 
 ## Docker Commands
 

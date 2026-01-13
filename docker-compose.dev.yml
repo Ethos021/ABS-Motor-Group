@@ -1,0 +1,87 @@
+# Docker Compose configuration for development mode
+# This runs only the backend and database services.
+# Use this when you want to run the frontend locally with `npm run dev`
+# 
+# Usage:
+#   docker compose -f docker-compose.dev.yml up
+#
+# Or simply use the backend docker-compose:
+#   cd backend && docker compose up
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: abs-mysql-dev
+    environment:
+      MYSQL_DATABASE: abs_motor_group
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_USER: abs_user
+      MYSQL_PASSWORD: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data_dev:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pmysql"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - abs-network
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    container_name: abs-phpmyadmin-dev
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: mysql
+    ports:
+      - "8081:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - abs-network
+    restart: unless-stopped
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: abs-backend-dev
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: abs_motor_group
+      DB_USER: root
+      DB_PASSWORD: mysql
+      PORT: 3000
+      NODE_ENV: development
+      # IMPORTANT: Change this secret in production! Use a secure random value.
+      JWT_SECRET: change_this_in_production_use_secure_random_value
+      JWT_EXPIRES_IN: 7d
+      # Allow connections from the frontend dev server running on the host
+      CORS_ORIGIN: http://localhost:8080
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: sh -c "npm run migrate && npm start"
+    networks:
+      - abs-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data_dev:
+    driver: local
+
+networks:
+  abs-network:
+    driver: bridge
