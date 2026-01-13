@@ -65,9 +65,9 @@ class CalendarBlock {
   static async findByDateRange(startDate, endDate, staffId = null) {
     let query = `
       SELECT * FROM calendar_blocks
-      WHERE start_datetime <= ? AND end_datetime >= ?
+      WHERE end_datetime >= ? AND start_datetime <= ?
     `;
-    const values = [endDate, startDate];
+    const values = [startDate, endDate];
 
     if (staffId) {
       query += ' AND staff_id = ?';
