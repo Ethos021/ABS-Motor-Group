@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { base44 } from "@/api/base44Client";
+import { Vehicle } from "@/api/entities";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -59,12 +59,12 @@ export default function Browse() {
 
     // Body type filter
     if (filters.bodyType) {
-      filtered = filtered.filter(vehicle => vehicle.body_type === filters.bodyType);
+      filtered = filtered.filter(vehicle => vehicle.bodyType === filters.bodyType);
     }
 
     // Fuel type filter
     if (filters.fuelType) {
-      filtered = filtered.filter(vehicle => vehicle.fuel_type === filters.fuelType);
+      filtered = filtered.filter(vehicle => vehicle.fuelType === filters.fuelType);
     }
 
     // Transmission filter
@@ -89,8 +89,8 @@ export default function Browse() {
 
     // Kilometers range filter
     filtered = filtered.filter(vehicle => 
-      (vehicle.odometer || vehicle.kilometers || 0) >= filters.kmRange[0] && 
-      (vehicle.odometer || vehicle.kilometers || 0) <= filters.kmRange[1]
+      (vehicle.mileage || 0) >= filters.kmRange[0] && 
+      (vehicle.mileage || 0) <= filters.kmRange[1]
     );
 
     // Sorting
@@ -103,9 +103,9 @@ export default function Browse() {
     } else if (sortBy === "price_high") {
       filtered.sort((a, b) => b.price - a.price);
     } else if (sortBy === "km_low") {
-      filtered.sort((a, b) => (a.odometer || a.kilometers || 0) - (b.odometer || b.kilometers || 0));
+      filtered.sort((a, b) => (a.mileage || 0) - (b.mileage || 0));
     } else if (sortBy === "km_high") {
-      filtered.sort((a, b) => (b.odometer || b.kilometers || 0) - (a.odometer || a.kilometers || 0));
+      filtered.sort((a, b) => (b.mileage || 0) - (a.mileage || 0));
     }
 
     setFilteredVehicles(filtered);
@@ -118,7 +118,7 @@ export default function Browse() {
   const loadVehicles = async () => {
     try {
       // Fetch vehicles from database
-      const data = await base44.entities.Vehicle.list();
+      const data = await Vehicle.list();
       setVehicles(data);
       
       // Apply URL filters first

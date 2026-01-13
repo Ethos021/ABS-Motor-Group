@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
-import { base44 } from "@/api/base44Client";
+import { Vehicle } from "@/api/entities";
 
 const heroImages = [
   "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d3e32641e7d562fa3996cf/f5c9dcd71_DSC01083.jpg",
@@ -43,7 +43,7 @@ export default function HeroSection() {
   }, []);
 
   const loadVehicles = async () => {
-    const data = await base44.entities.Vehicle.list();
+    const data = await Vehicle.list();
     setVehicles(data);
   };
 

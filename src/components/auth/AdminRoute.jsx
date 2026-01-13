@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { User } from "@/api/entities";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -14,7 +14,13 @@ export default function AdminRoute({ children }) {
 
   const checkAuth = async () => {
     try {
-      const currentUser = await base44.auth.me();
+      if (!User.isAuthenticated()) {
+        // Not authenticated - redirect to home
+        navigate(createPageUrl('Home'));
+        return;
+      }
+
+      const currentUser = await User.getProfile();
       
       if (!currentUser || currentUser.role !== 'admin') {
         // Not authorized - redirect to home
@@ -25,8 +31,8 @@ export default function AdminRoute({ children }) {
       setUser(currentUser);
       setLoading(false);
     } catch (error) {
-      // Not authenticated - redirect to login
-      base44.auth.redirectToLogin(window.location.pathname);
+      // Error getting profile - redirect to home
+      navigate(createPageUrl('Home'));
     }
   };
 
