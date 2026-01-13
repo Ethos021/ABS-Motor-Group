@@ -74,7 +74,10 @@ export default function VehicleEnquiryForm({ vehicle }) {
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const leadData = {
+        enquiryType: 'vehicle',
         ...formData,
+        email: formData.email || 'info@absmotorgroup.com',
+        mobile: formData.mobile || 'N/A',
         hasTradein: formData.hasTradein === 'yes', // Convert to boolean
         wantsFinance: formData.wantsFinance === 'yes', // Convert to boolean
         wantsTestDrive: formData.wantsTestDrive === 'yes', // Convert to boolean
@@ -136,7 +139,26 @@ export default function VehicleEnquiryForm({ vehicle }) {
       await SendEmail({
         to: 'giulianoc@scrmmedia.com.au',
         subject: `🚗 New Enquiry: ${leadData.vehicleDetails}`,
-        body: emailContent
+        body: emailContent,
+        metadata: {
+          enquiryType: leadData.enquiryType,
+          firstName: leadData.firstName,
+          lastName: leadData.lastName,
+          email: leadData.email,
+          mobile: leadData.mobile,
+          message: leadData.message,
+          vehicleId: leadData.vehicleId,
+          vehiclePrice: leadData.vehiclePrice,
+          financeEstimate: leadData.financeEstimate,
+          wantsFinance: leadData.wantsFinance,
+          wantsTestDrive: leadData.wantsTestDrive,
+          hasTradein: leadData.hasTradein,
+          utmSource: leadData.utmSource,
+          utmMedium: leadData.utmMedium,
+          utmCampaign: leadData.utmCampaign,
+          referrer: leadData.referrer,
+          pageUrl: leadData.pageUrl
+        }
       });
 
       if (window.gtag) {
