@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Enquiry, Booking, Staff, CalendarBlock, Vehicle } from "@/api/entities";
+import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AdminRoute from "../components/auth/AdminRoute";
 import { Button } from "@/components/ui/button";
