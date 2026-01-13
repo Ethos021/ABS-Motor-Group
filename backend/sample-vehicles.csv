@@ -1,0 +1,4 @@
+make,model,year,price,mileage,bodyType,fuelType,transmission,color,engineSize,doors,seats,vin,registrationNo,description,features,images,status,isFeatured
+Toyota,Camry,2022,32000,15000,Sedan,Petrol,Automatic,Silver,2.5L,4,5,VIN123,ABC123,Well-maintained Toyota Camry with full service history,Bluetooth|Cruise Control|Backup Camera|Lane Assist,,available,true
+BMW,X5,2021,68000,22000,SUV,Diesel,Automatic,Black,3.0L,5,7,VIN456,DEF456,Luxury SUV with premium features,Leather Seats|Navigation|Sunroof|Parking Sensors|Apple CarPlay,,available,true
+Mercedes-Benz,C-Class,2023,55000,5000,Sedan,Petrol,Automatic,White,2.0L,4,5,VIN789,GHI789,Nearly new Mercedes C-Class,Premium Sound|LED Headlights|Heated Seats|Keyless Entry,,available,false
