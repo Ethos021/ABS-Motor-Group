@@ -68,6 +68,10 @@ app.use((req, res, next) => {
     const sanitizedQuery = sanitizeObject(req.query);
     if (sanitizedQuery && typeof sanitizedQuery === 'object') {
       Object.assign(req.query, sanitizedQuery);
+    } else if (sanitizedQuery == null) {
+      for (const key of Object.keys(req.query)) {
+        delete req.query[key];
+      }
     }
   }
   next();
