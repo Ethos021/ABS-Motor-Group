@@ -1,9 +1,19 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import Staff from '../models/Staff.js';
 
 export const register = async (req, res) => {
   try {
     const { full_name, email, password, role } = req.body;
+
+    // Ensure the email belongs to an active staff member
+    const staffMember = await Staff.findByEmail(email);
+    if (!staffMember || staffMember.is_active === false) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only active staff members can create user accounts'
+      });
+    }
 
     // Check if user already exists
     const existingUser = await User.findByEmail(email);
@@ -57,6 +67,15 @@ export const login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password'
+      });
+    }
+
+    // Ensure user is an active staff member
+    const staffMember = await Staff.findByEmail(email);
+    if (!staffMember || staffMember.is_active === false) {
+      return res.status(403).json({
+        success: false,
+        message: 'Login is restricted to active staff members'
       });
     }
 

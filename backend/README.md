@@ -88,6 +88,8 @@ The API will be available at `http://localhost:3000`
 
 ### Authentication (`/api/auth`)
 
+> **Access control:** Only active staff members can create user accounts or log in. Registration attempts with non-staff emails are rejected, and login is denied for users not linked to an active staff record.
+
 - `POST /api/auth/register` - Register a new user
 - `POST /api/auth/login` - Login and get JWT token
 - `GET /api/auth/me` - Get current user info (requires auth)
