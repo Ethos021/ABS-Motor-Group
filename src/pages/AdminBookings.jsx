@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { Enquiry, Booking, Staff, CalendarBlock, Vehicle } from "@/api/entities";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AdminRoute from "../components/auth/AdminRoute";
 import { Button } from "@/components/ui/button";
@@ -28,18 +28,18 @@ export default function AdminBookings() {
 
   const { data: bookings, isLoading } = useQuery({
     queryKey: ['bookings'],
-    queryFn: () => base44.entities.Booking.list('-scheduled_datetime'),
+    queryFn: () => Booking.list('-scheduled_datetime'),
     initialData: []
   });
 
   const { data: staff } = useQuery({
     queryKey: ['staff'],
-    queryFn: () => base44.entities.Staff.list(),
+    queryFn: () => Staff.list(),
     initialData: []
   });
 
   const updateBookingMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Booking.update(id, data),
+    mutationFn: ({ id, data }) => Booking.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
       setSelectedBooking(null);
@@ -47,7 +47,7 @@ export default function AdminBookings() {
   });
 
   const createBookingMutation = useMutation({
-    mutationFn: (data) => base44.entities.Booking.create(data),
+    mutationFn: (data) => Booking.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
       setShowNewBooking(false);

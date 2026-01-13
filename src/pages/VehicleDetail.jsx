@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { Enquiry, Booking, Staff, CalendarBlock, Vehicle } from "@/api/entities";
 import { createPageUrl } from "@/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,7 @@ export default function VehicleDetail() {
       setNotFound(false);
 
       try {
-        const allVehicles = await base44.entities.Vehicle.list();
+        const allVehicles = await Vehicle.list();
         
         if (!isMounted) return;
         
