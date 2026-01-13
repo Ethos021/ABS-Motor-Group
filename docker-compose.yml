@@ -23,14 +23,13 @@ services:
 
   # phpMyAdmin
   phpmyadmin:
-    image: phpmyadmin:latest
+    image: phpmyadmin:5.2
     container_name: abs-phpmyadmin
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
       PMA_USER: root
       PMA_PASSWORD: mysql
-      MYSQL_ROOT_PASSWORD: mysql
     ports:
       - "8081:80"
     depends_on:

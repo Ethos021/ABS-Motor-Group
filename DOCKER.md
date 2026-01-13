@@ -47,7 +47,7 @@ The Docker setup includes four services:
 - **Data**: Persisted in a Docker volume
 
 ### 2. phpMyAdmin (`phpmyadmin`)
-- **Image**: phpmyadmin:latest
+- **Image**: phpmyadmin:5.2
 - **Port**: 8081
 - **Access**: http://localhost:8081
 - **Purpose**: Web-based MySQL database management interface
