@@ -19,8 +19,13 @@ import calendarBlockRoutes from './routes/calendarBlocks.js';
 const app = express();
 
 // Security middleware
+// CSP is disabled for API-only backend - we don't serve HTML
+// XSS protection is handled by:
+// 1. JSON-only Content-Type validation
+// 2. Input sanitization middleware
+// 3. Parameterized queries via Prisma ORM
 app.use(helmet({
-  contentSecurityPolicy: false, // Disable for API
+  contentSecurityPolicy: false, // Not needed for JSON API
   crossOriginEmbedderPolicy: false,
 }));
 
