@@ -2,6 +2,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const DEFAULT_CORS_ORIGINS = [
+  'http://localhost:8081',
+  'http://localhost:5173',
+];
+
 export default {
   port: process.env.PORT || 3000,
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -10,10 +15,9 @@ export default {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
   cors: {
-    origin: (process.env.CORS_ORIGIN?.split(',') || [
-      'http://localhost:8081',
-      'http://localhost:5173',
-    ]).map(origin => origin.trim()).filter(Boolean),
+    origin: (process.env.CORS_ORIGIN?.split(',') || DEFAULT_CORS_ORIGINS)
+      .map(origin => origin.trim())
+      .filter(Boolean),
   },
   rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes

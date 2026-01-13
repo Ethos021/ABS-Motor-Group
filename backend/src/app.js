@@ -65,7 +65,10 @@ app.use((req, res, next) => {
     req.body = sanitizeObject(req.body);
   }
   if (req.query) {
-    Object.assign(req.query, sanitizeObject(req.query));
+    const sanitizedQuery = sanitizeObject(req.query);
+    if (sanitizedQuery && typeof sanitizedQuery === 'object') {
+      Object.assign(req.query, sanitizedQuery);
+    }
   }
   next();
 });
