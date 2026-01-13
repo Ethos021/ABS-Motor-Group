@@ -40,7 +40,7 @@ services:
       # IMPORTANT: Change this secret in production! Use a secure random value.
       JWT_SECRET: change_this_in_production
       JWT_EXPIRES_IN: 7d
-      CORS_ORIGIN: http://localhost:5173
+      CORS_ORIGIN: http://localhost:8080
     ports:
       - "3000:3000"
     depends_on:
