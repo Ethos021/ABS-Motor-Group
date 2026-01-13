@@ -2,8 +2,13 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
-// Strip a trailing /api from the configured API URL so the dev proxy doesn't double-append it
-const apiTarget = (process.env.VITE_API_URL || 'http://localhost:3000').replace(/\/api\/?$/, '');
+const apiUrl = process.env.VITE_API_URL || 'http://localhost:3000';
+// Strip a trailing /api or /api/ from the configured API URL so the dev proxy doesn't double-append it
+const apiTarget = apiUrl.endsWith('/api/')
+  ? apiUrl.slice(0, -5)
+  : apiUrl.endsWith('/api')
+    ? apiUrl.slice(0, -4)
+    : apiUrl;
 
 // https://vite.dev/config/
 export default defineConfig({
