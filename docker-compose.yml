@@ -21,6 +21,25 @@ services:
     networks:
       - abs-network
 
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: abs-phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: mysql
+      MYSQL_ROOT_PASSWORD: mysql
+    ports:
+      - "8081:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - abs-network
+    restart: unless-stopped
+
   # Backend API
   backend:
     build:
