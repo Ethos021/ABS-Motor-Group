@@ -76,7 +76,7 @@ export default function VehicleEnquiryForm({ vehicle }) {
       const leadData = {
         enquiryType: 'vehicle',
         ...formData,
-        email: formData.email || 'info@absmotorgroup.com',
+        email: formData.email.trim(),
         mobile: formData.mobile || 'N/A',
         hasTradein: formData.hasTradein === 'yes', // Convert to boolean
         wantsFinance: formData.wantsFinance === 'yes', // Convert to boolean
@@ -256,13 +256,16 @@ export default function VehicleEnquiryForm({ vehicle }) {
               </div>
               
               <div>
-                <label className="text-sm font-medium text-zinc-300 mb-2 block">Email Address</label>
+                <label className="text-sm font-medium text-zinc-300 mb-2 block">
+                  Email Address <span className="text-red-500">*</span>
+                </label>
                 <Input
                   type="email"
                   placeholder="Enter email address"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   className="bg-zinc-800 border-zinc-700 text-zinc-50"
+                  required
                 />
               </div>
 
@@ -348,13 +351,16 @@ export default function VehicleEnquiryForm({ vehicle }) {
               </div>
               
               <div>
-                <label className="text-sm font-medium text-zinc-300 mb-2 block">Email Address</label>
+                <label className="text-sm font-medium text-zinc-300 mb-2 block">
+                  Email Address <span className="text-red-500">*</span>
+                </label>
                 <Input
                   type="email"
                   placeholder="Enter email address"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   className="bg-zinc-800 border-zinc-700 text-zinc-50"
+                  required
                 />
               </div>
 

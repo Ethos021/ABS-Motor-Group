@@ -11,7 +11,7 @@ const postJson = async (url, payload) => {
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || 'Failed to submit integration request');
+    throw new Error(errorText || `Failed to submit integration request to ${url}`);
   }
 
   try {
@@ -21,7 +21,14 @@ const postJson = async (url, payload) => {
   }
 };
 
-const stripHtml = (html = '') => html.replace(/<[^>]*>/g, '').trim();
+const stripHtml = (html = '') => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  return (doc.body.textContent || '').trim();
+};
+const unsupportedFeature = (featureName) => {
+  throw new Error(`Feature not available: ${featureName} is not supported in this application.`);
+};
 
 export const Core = {
   sendEnquiry: (data) => apiClient.create('enquiries', data),
@@ -40,8 +47,8 @@ export const SendEmail = async ({ to, subject, body, metadata = {} }) => {
 
   const fallbackPayload = {
     enquiryType: metadata.enquiryType || 'general',
-    firstName: metadata.firstName || 'Website',
-    lastName: metadata.lastName || 'Lead',
+    firstName: metadata.firstName || 'Anonymous',
+    lastName: metadata.lastName || 'Enquiry',
     email: metadata.email || to,
     mobile: metadata.mobile || 'N/A',
     message: metadata.message || stripHtml(body) || 'Website contact request',
@@ -60,33 +67,32 @@ export const UploadFile = async (file) => {
   const formData = new FormData();
   formData.append('file', file);
 
+  const headers = {};
+  const token = apiClient.getToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const response = await fetch(`${apiClient.baseURL}/vehicles/import/csv`, {
     method: 'POST',
+    headers,
     body: formData
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || 'Failed to upload file');
+    throw new Error(errorText || 'Failed to upload CSV file to vehicles import endpoint');
   }
 
   return response.json();
 };
 
-export const UploadPrivateFile = UploadFile;
+export const UploadPrivateFile = () => unsupportedFeature('private file uploads');
 
-export const CreateFileSignedUrl = async () => {
-  throw new Error('Signed URL creation is not implemented for this application.');
-};
+export const CreateFileSignedUrl = () => unsupportedFeature('signed URL creation');
 
-export const ExtractDataFromUploadedFile = async () => {
-  throw new Error('File data extraction is not available in this application.');
-};
+export const ExtractDataFromUploadedFile = () => unsupportedFeature('file data extraction');
 
-export const GenerateImage = async () => {
-  throw new Error('Image generation is not part of the ABS Motor Group frontend.');
-};
+export const GenerateImage = () => unsupportedFeature('image generation');
 
-export const InvokeLLM = async () => {
-  throw new Error('LLM integrations are not configured for this site.');
-};
+export const InvokeLLM = () => unsupportedFeature('LLM interactions');
