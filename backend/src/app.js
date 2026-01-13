@@ -65,8 +65,8 @@ app.use((req, res, next) => {
     req.body = sanitizeObject(req.body);
   }
   if (req.query) {
-    for (const [key, value] of Object.entries(sanitizeObject({ ...req.query }))) {
-      req.query[key] = value;
+    for (const key of Object.keys(req.query)) {
+      req.query[key] = sanitizeObject(req.query[key]);
     }
   }
   next();

@@ -7,7 +7,7 @@ services:
     container_name: abs-mysql
     restart: unless-stopped
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: abs_motor_group
