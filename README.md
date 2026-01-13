@@ -1,6 +1,6 @@
 # ABS Motor Group
 
-A modern web application for ABS Motor Group with a React frontend and Node.js/PostgreSQL backend.
+A modern web application for ABS Motor Group with a React frontend and Node.js/MySQL backend.
 
 ## Quick Start with Docker 🐳
 
@@ -14,7 +14,7 @@ docker compose up
 Access the application at:
 - **Frontend**: http://localhost:8080
 - **Backend API**: http://localhost:3000
-- **Database**: localhost:5432
+- **Database**: localhost:3306
 
 **Important**: Make sure to run `docker compose up` from the **root directory** of the project to start all services including the frontend. Running it from the `backend` directory will only start the backend and database.
 
@@ -23,7 +23,7 @@ For detailed Docker instructions, see [DOCKER.md](./DOCKER.md)
 ## Project Structure
 
 - `/` - React frontend (Vite + React)
-- `/backend` - Node.js/Express backend with PostgreSQL
+- `/backend` - Node.js/Express backend with MySQL
 
 ## Frontend
 
@@ -50,7 +50,7 @@ npm run build
 
 The backend is a RESTful API built with:
 - Node.js + Express
-- PostgreSQL database
+- MySQL database
 - JWT authentication
 - Comprehensive entity management
 
@@ -90,7 +90,7 @@ See [backend/API_DOCUMENTATION.md](./backend/API_DOCUMENTATION.md) for complete 
 
 ## Database Schema
 
-The PostgreSQL database includes:
+The MySQL database includes:
 - Users (authentication)
 - Staff (staff members)
 - Enquiries (customer enquiries)

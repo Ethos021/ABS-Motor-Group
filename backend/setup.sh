@@ -15,13 +15,13 @@ fi
 
 echo "✓ Node.js version: $(node --version)"
 
-# Check if PostgreSQL is installed
-if ! command -v psql &> /dev/null; then
-    echo "❌ PostgreSQL is not installed. Please install PostgreSQL 12+ first."
+# Check if MySQL is installed
+if ! command -v mysql &> /dev/null; then
+    echo "❌ MySQL is not installed. Please install MySQL 8.0+ first."
     exit 1
 fi
 
-echo "✓ PostgreSQL is installed"
+echo "✓ MySQL is installed"
 
 # Install dependencies
 echo ""
@@ -56,7 +56,7 @@ fi
 # Create database
 echo ""
 echo "Creating database..."
-echo "Enter your PostgreSQL password when prompted:"
+echo "Enter your MySQL root password when prompted:"
 
 # Extract DB_NAME from .env file, handling quotes and spaces
 DB_NAME=$(grep "^DB_NAME=" .env | cut -d '=' -f2- | sed 's/^["'\'']*//;s/["'\'']*$//' | xargs)
@@ -65,7 +65,7 @@ if [ -z "$DB_NAME" ]; then
     exit 1
 fi
 
-createdb "$DB_NAME" 2>/dev/null
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
 
 if [ $? -eq 0 ]; then
     echo "✓ Database '$DB_NAME' created"

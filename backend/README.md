@@ -1,6 +1,6 @@
 # ABS Motor Group Backend API
 
-A RESTful API backend for the ABS Motor Group website, built with Node.js, Express, and PostgreSQL.
+A RESTful API backend for the ABS Motor Group website, built with Node.js, Express, and MySQL.
 
 ## Features
 
@@ -9,13 +9,13 @@ A RESTful API backend for the ABS Motor Group website, built with Node.js, Expre
 - **Staff Management**: Manage staff members and their roles
 - **Calendar Blocks**: Handle staff availability and calendar blocking
 - **Booking System**: Manage test drives, inspections, and appointments
-- **PostgreSQL Database**: Robust relational database with proper indexing
+- **MySQL Database**: Robust relational database with proper indexing
 
 ## Tech Stack
 
 - **Runtime**: Node.js (ES Modules)
 - **Framework**: Express.js
-- **Database**: PostgreSQL
+- **Database**: MySQL
 - **Authentication**: JWT (JSON Web Tokens)
 - **Security**: bcryptjs for password hashing
 - **Validation**: express-validator
@@ -23,7 +23,7 @@ A RESTful API backend for the ABS Motor Group website, built with Node.js, Expre
 ## Prerequisites
 
 - Node.js 16+ installed
-- PostgreSQL 12+ installed and running
+- MySQL 8.0+ installed and running
 - npm or yarn package manager
 
 ## Installation
@@ -46,9 +46,9 @@ A RESTful API backend for the ABS Motor Group website, built with Node.js, Expre
 4. **Edit `.env` file** with your configuration:
    ```env
    DB_HOST=localhost
-   DB_PORT=5432
+   DB_PORT=3306
    DB_NAME=abs_motor_group
-   DB_USER=postgres
+   DB_USER=root
    DB_PASSWORD=your_password
    PORT=3000
    JWT_SECRET=your_secure_secret_key
@@ -56,13 +56,9 @@ A RESTful API backend for the ABS Motor Group website, built with Node.js, Expre
    CORS_ORIGIN=http://localhost:5173
    ```
 
-5. **Create the PostgreSQL database**:
+5. **Create the MySQL database**:
    ```bash
-   createdb abs_motor_group
-   ```
-   Or via psql:
-   ```sql
-   CREATE DATABASE abs_motor_group;
+   mysql -u root -p -e "CREATE DATABASE abs_motor_group CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
    ```
 
 6. **Run database migrations**:

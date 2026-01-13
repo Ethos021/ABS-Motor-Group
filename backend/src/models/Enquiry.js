@@ -7,62 +7,59 @@ class Enquiry {
     const filteredData = filterAllowedFields(data, ALLOWED_FIELDS.enquiry);
     const fields = Object.keys(filteredData);
     const values = fields.map(key => filteredData[key]);
-    const placeholders = fields.map((_, i) => `$${i + 1}`);
+    const placeholders = fields.map(() => '?');
     
     const query = `
       INSERT INTO enquiries (${fields.join(', ')})
       VALUES (${placeholders.join(', ')})
-      RETURNING *
     `;
     
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    const [result] = await pool.query(query, values);
+    
+    // Fetch the created record
+    const [rows] = await pool.query('SELECT * FROM enquiries WHERE id = ?', [result.insertId]);
+    return rows[0];
   }
 
   static async findById(id) {
-    const query = 'SELECT * FROM enquiries WHERE id = $1';
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
+    const query = 'SELECT * FROM enquiries WHERE id = ?';
+    const [rows] = await pool.query(query, [id]);
+    return rows[0];
   }
 
   static async findAll(filters = {}) {
     let query = 'SELECT * FROM enquiries WHERE 1=1';
     const values = [];
-    let paramCount = 1;
 
     if (filters.status) {
-      query += ` AND status = $${paramCount}`;
+      query += ' AND status = ?';
       values.push(filters.status);
-      paramCount++;
     }
 
     if (filters.enquiry_type) {
-      query += ` AND enquiry_type = $${paramCount}`;
+      query += ' AND enquiry_type = ?';
       values.push(filters.enquiry_type);
-      paramCount++;
     }
 
     if (filters.assignedStaffId) {
-      query += ` AND assignedstaffid = $${paramCount}`;
+      query += ' AND assignedStaffId = ?';
       values.push(filters.assignedStaffId);
-      paramCount++;
     }
 
     query += ' ORDER BY created_date DESC';
 
     if (filters.limit) {
-      query += ` LIMIT $${paramCount}`;
+      query += ' LIMIT ?';
       values.push(filters.limit);
-      paramCount++;
     }
 
     if (filters.offset) {
-      query += ` OFFSET $${paramCount}`;
+      query += ' OFFSET ?';
       values.push(filters.offset);
     }
 
-    const result = await pool.query(query, values);
-    return result.rows;
+    const [rows] = await pool.query(query, values);
+    return rows;
   }
 
   static async update(id, data) {
@@ -70,39 +67,46 @@ class Enquiry {
     const filteredData = filterAllowedFields(data, ALLOWED_FIELDS.enquiry);
     const fields = Object.keys(filteredData);
     const values = fields.map(key => filteredData[key]);
-    const setClause = fields.map((key, i) => `${key} = $${i + 1}`).join(', ');
+    const setClause = fields.map(key => `${key} = ?`).join(', ');
     
     const query = `
       UPDATE enquiries
       SET ${setClause}
-      WHERE id = $${fields.length + 1}
-      RETURNING *
+      WHERE id = ?
     `;
     
-    const result = await pool.query(query, [...values, id]);
-    return result.rows[0];
+    await pool.query(query, [...values, id]);
+    
+    // Fetch the updated record
+    const [rows] = await pool.query('SELECT * FROM enquiries WHERE id = ?', [id]);
+    return rows[0];
   }
 
   static async delete(id) {
-    const query = 'DELETE FROM enquiries WHERE id = $1 RETURNING *';
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
+    // Fetch before deleting
+    const [rows] = await pool.query('SELECT * FROM enquiries WHERE id = ?', [id]);
+    const enquiry = rows[0];
+    
+    const query = 'DELETE FROM enquiries WHERE id = ?';
+    await pool.query(query, [id]);
+    return enquiry;
   }
 
   static async search(searchTerm) {
     const query = `
       SELECT * FROM enquiries
       WHERE 
-        firstName ILIKE $1 OR
-        lastName ILIKE $1 OR
-        email ILIKE $1 OR
-        mobile ILIKE $1 OR
-        message ILIKE $1 OR
-        vehicleDetails ILIKE $1
+        firstName LIKE ? OR
+        lastName LIKE ? OR
+        email LIKE ? OR
+        mobile LIKE ? OR
+        message LIKE ? OR
+        vehicleDetails LIKE ?
       ORDER BY created_date DESC
     `;
-    const result = await pool.query(query, [`%${searchTerm}%`]);
-    return result.rows;
+    const searchPattern = `%${searchTerm}%`;
+    const [rows] = await pool.query(query, [searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern]);
+    return rows;
   }
 }
 

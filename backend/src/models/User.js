@@ -8,8 +8,7 @@ class User {
     
     const query = `
       INSERT INTO users (full_name, email, password_hash, role, created_by)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING id, created_date, updated_date, full_name, email, role
+      VALUES (?, ?, ?, ?, ?)
     `;
     
     const values = [
@@ -20,56 +19,54 @@ class User {
       data.created_by || null
     ];
     
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    const [result] = await pool.query(query, values);
+    
+    // Fetch the created record
+    const [rows] = await pool.query('SELECT id, created_date, updated_date, full_name, email, role FROM users WHERE id = ?', [result.insertId]);
+    return rows[0];
   }
 
   static async findById(id) {
-    const query = 'SELECT id, created_date, updated_date, full_name, email, role FROM users WHERE id = $1';
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
+    const query = 'SELECT id, created_date, updated_date, full_name, email, role FROM users WHERE id = ?';
+    const [rows] = await pool.query(query, [id]);
+    return rows[0];
   }
 
   static async findByEmail(email) {
-    const query = 'SELECT * FROM users WHERE email = $1';
-    const result = await pool.query(query, [email]);
-    return result.rows[0];
+    const query = 'SELECT * FROM users WHERE email = ?';
+    const [rows] = await pool.query(query, [email]);
+    return rows[0];
   }
 
   static async findAll() {
     const query = 'SELECT id, created_date, updated_date, full_name, email, role FROM users ORDER BY created_date DESC';
-    const result = await pool.query(query);
-    return result.rows;
+    const [rows] = await pool.query(query);
+    return rows;
   }
 
   static async update(id, data) {
     const fields = [];
     const values = [];
-    let paramCount = 1;
 
     if (data.full_name !== undefined) {
-      fields.push(`full_name = $${paramCount}`);
+      fields.push('full_name = ?');
       values.push(data.full_name);
-      paramCount++;
     }
 
     if (data.email !== undefined) {
-      fields.push(`email = $${paramCount}`);
+      fields.push('email = ?');
       values.push(data.email);
-      paramCount++;
     }
 
     if (data.role !== undefined) {
-      fields.push(`role = $${paramCount}`);
+      fields.push('role = ?');
       values.push(data.role);
-      paramCount++;
     }
 
     if (data.password !== undefined) {
       const hashedPassword = await bcrypt.hash(data.password, 10);
-      fields.push(`password_hash = $${paramCount}`);
+      fields.push('password_hash = ?');
       values.push(hashedPassword);
-      paramCount++;
     }
 
     if (fields.length === 0) {
@@ -81,18 +78,24 @@ class User {
     const query = `
       UPDATE users
       SET ${fields.join(', ')}
-      WHERE id = $${paramCount}
-      RETURNING id, created_date, updated_date, full_name, email, role
+      WHERE id = ?
     `;
     
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    await pool.query(query, values);
+    
+    // Fetch the updated record
+    const [rows] = await pool.query('SELECT id, created_date, updated_date, full_name, email, role FROM users WHERE id = ?', [id]);
+    return rows[0];
   }
 
   static async delete(id) {
-    const query = 'DELETE FROM users WHERE id = $1 RETURNING id, full_name, email';
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
+    // Fetch before deleting
+    const [rows] = await pool.query('SELECT id, full_name, email FROM users WHERE id = ?', [id]);
+    const user = rows[0];
+    
+    const query = 'DELETE FROM users WHERE id = ?';
+    await pool.query(query, [id]);
+    return user;
   }
 
   static async verifyPassword(email, password) {

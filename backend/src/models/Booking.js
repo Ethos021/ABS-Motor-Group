@@ -7,81 +7,77 @@ class Booking {
     const filteredData = filterAllowedFields(data, ALLOWED_FIELDS.booking);
     const fields = Object.keys(filteredData);
     const values = fields.map(key => filteredData[key]);
-    const placeholders = fields.map((_, i) => `$${i + 1}`);
+    const placeholders = fields.map(() => '?');
     
     const query = `
       INSERT INTO bookings (${fields.join(', ')})
       VALUES (${placeholders.join(', ')})
-      RETURNING *
     `;
     
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    const [result] = await pool.query(query, values);
+    
+    // Fetch the created record
+    const [rows] = await pool.query('SELECT * FROM bookings WHERE id = ?', [result.insertId]);
+    return rows[0];
   }
 
   static async findById(id) {
-    const query = 'SELECT * FROM bookings WHERE id = $1';
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
+    const query = 'SELECT * FROM bookings WHERE id = ?';
+    const [rows] = await pool.query(query, [id]);
+    return rows[0];
   }
 
   static async findAll(filters = {}) {
     let query = 'SELECT * FROM bookings WHERE 1=1';
     const values = [];
-    let paramCount = 1;
 
     if (filters.status) {
-      query += ` AND status = $${paramCount}`;
+      query += ' AND status = ?';
       values.push(filters.status);
-      paramCount++;
     }
 
     if (filters.booking_type) {
-      query += ` AND booking_type = $${paramCount}`;
+      query += ' AND booking_type = ?';
       values.push(filters.booking_type);
-      paramCount++;
     }
 
     if (filters.staff_id) {
-      query += ` AND staff_id = $${paramCount}`;
+      query += ' AND staff_id = ?';
       values.push(filters.staff_id);
-      paramCount++;
     }
 
     if (filters.enquiry_id) {
-      query += ` AND enquiry_id = $${paramCount}`;
+      query += ' AND enquiry_id = ?';
       values.push(filters.enquiry_id);
-      paramCount++;
     }
 
     query += ' ORDER BY scheduled_datetime DESC';
 
     if (filters.limit) {
-      query += ` LIMIT $${paramCount}`;
+      query += ' LIMIT ?';
       values.push(filters.limit);
-      paramCount++;
     }
 
-    const result = await pool.query(query, values);
-    return result.rows;
+    const [rows] = await pool.query(query, values);
+    return rows;
   }
 
   static async findByDateRange(startDate, endDate, staffId = null) {
     let query = `
       SELECT * FROM bookings
-      WHERE scheduled_datetime >= $1 AND scheduled_datetime <= $2
+      WHERE scheduled_datetime >= ? AND scheduled_datetime <= ?
     `;
     const values = [startDate, endDate];
 
     if (staffId) {
-      query += ' AND staff_id = $3';
+      query += ' AND staff_id = ?';
       values.push(staffId);
     }
 
     query += ' ORDER BY scheduled_datetime ASC';
 
-    const result = await pool.query(query, values);
-    return result.rows;
+    const [rows] = await pool.query(query, values);
+    return rows;
   }
 
   static async update(id, data) {
@@ -89,23 +85,29 @@ class Booking {
     const filteredData = filterAllowedFields(data, ALLOWED_FIELDS.booking);
     const fields = Object.keys(filteredData);
     const values = fields.map(key => filteredData[key]);
-    const setClause = fields.map((key, i) => `${key} = $${i + 1}`).join(', ');
+    const setClause = fields.map(key => `${key} = ?`).join(', ');
     
     const query = `
       UPDATE bookings
       SET ${setClause}
-      WHERE id = $${fields.length + 1}
-      RETURNING *
+      WHERE id = ?
     `;
     
-    const result = await pool.query(query, [...values, id]);
-    return result.rows[0];
+    await pool.query(query, [...values, id]);
+    
+    // Fetch the updated record
+    const [rows] = await pool.query('SELECT * FROM bookings WHERE id = ?', [id]);
+    return rows[0];
   }
 
   static async delete(id) {
-    const query = 'DELETE FROM bookings WHERE id = $1 RETURNING *';
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
+    // Fetch before deleting
+    const [rows] = await pool.query('SELECT * FROM bookings WHERE id = ?', [id]);
+    const booking = rows[0];
+    
+    const query = 'DELETE FROM bookings WHERE id = ?';
+    await pool.query(query, [id]);
+    return booking;
   }
 }
 
