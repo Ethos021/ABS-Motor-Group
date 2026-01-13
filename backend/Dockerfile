@@ -11,8 +11,8 @@ COPY prisma ./prisma/
 # Install dependencies
 RUN npm install
 
-# Generate Prisma Client (allow self-signed certs during build)
-RUN NODE_TLS_REJECT_UNAUTHORIZED=0 npx prisma generate
+# Generate Prisma Client
+RUN npx prisma generate
 
 # Copy application code
 COPY . .
