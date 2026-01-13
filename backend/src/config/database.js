@@ -20,7 +20,7 @@ const poolConfig = {
   multipleStatements: true
 };
 
-let pool = mysql.createPool(poolConfig);
+const pool = mysql.createPool(poolConfig);
 
 // Test connection with retry logic
 const testConnection = async (retries = 5, delay = 2000) => {
@@ -42,7 +42,9 @@ const testConnection = async (retries = 5, delay = 2000) => {
   return false;
 };
 
-// Start connection test
-testConnection();
+// Test initial connection (non-blocking to allow server to start)
+testConnection().catch(err => {
+  console.error('Initial database connection test failed:', err);
+});
 
 export default pool;

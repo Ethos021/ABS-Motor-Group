@@ -39,7 +39,7 @@ app.use((req, res, next) => {
 app.get('/health', apiLimiter, async (req, res) => {
   try {
     // Try to execute a simple query
-    const [rows] = await pool.query('SELECT 1 as result');
+    await pool.query('SELECT 1');
     res.json({
       success: true,
       message: 'API is running',
