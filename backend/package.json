@@ -1,0 +1,43 @@
+{
+  "name": "abs-motor-group-backend",
+  "version": "1.0.0",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "node prisma/seed.js",
+    "prisma:studio": "prisma studio",
+    "db:reset": "prisma migrate reset --force && npm run prisma:seed"
+  },
+  "keywords": [
+    "express",
+    "prisma",
+    "mysql",
+    "rest-api"
+  ],
+  "author": "",
+  "license": "ISC",
+  "description": "ABS Motor Group Backend API",
+  "dependencies": {
+    "@prisma/client": "^7.2.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.2.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "express-validator": "^7.3.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "papaparse": "^5.5.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11",
+    "prisma": "^7.2.0"
+  }
+}

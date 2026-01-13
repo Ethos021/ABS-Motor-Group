@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+backend/node_modules
 dist
 dist-ssr
 *.local
@@ -24,3 +25,5 @@ dist-ssr
 *.sw?
 
 .env
+backend/.env
+backend/prisma/migrations

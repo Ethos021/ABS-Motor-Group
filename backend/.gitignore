@@ -1,0 +1,26 @@
+node_modules
+# Keep environment variables out of version control
+.env
+
+# Prisma generated client
+/src/generated/prisma
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Uploads
+uploads/
+/tmp/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Prisma migrations (will be generated in Docker)
+prisma/migrations/
+

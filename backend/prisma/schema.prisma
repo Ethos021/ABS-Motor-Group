@@ -1,0 +1,190 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String?  @map("first_name")
+  lastName  String?  @map("last_name")
+  role      String   @default("user") // user, staff, admin
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+  @@index([email])
+  @@index([role])
+}
+
+model Vehicle {
+  id                String   @id @default(uuid())
+  make              String
+  model             String
+  year              Int
+  price             Decimal  @db.Decimal(10, 2)
+  mileage           Int      @map("mileage")
+  bodyType          String?  @map("body_type")
+  fuelType          String?  @map("fuel_type")
+  transmission      String?
+  color             String?
+  engineSize        String?  @map("engine_size")
+  doors             Int?
+  seats             Int?
+  vin               String?  @unique
+  registrationNo    String?  @map("registration_no")
+  description       String?  @db.Text
+  features          String?  @db.Text // JSON array as string
+  images            String?  @db.Text // JSON array as string
+  status            String   @default("available") // available, sold, reserved, pending
+  isFeatured        Boolean  @default(false) @map("is_featured")
+  viewCount         Int      @default(0) @map("view_count")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  enquiries         Enquiry[]
+  bookings          Booking[]
+
+  @@map("vehicles")
+  @@index([make])
+  @@index([model])
+  @@index([year])
+  @@index([price])
+  @@index([status])
+  @@index([isFeatured])
+  @@index([createdAt])
+}
+
+model Enquiry {
+  id              String   @id @default(uuid())
+  enquiryType     String   @map("enquiry_type") // general, vehicle, finance, trade_in, service
+  status          String   @default("new") // new, contacted, qualified, converted, closed
+  firstName       String   @map("first_name")
+  lastName        String   @map("last_name")
+  email           String
+  mobile          String
+  message         String?  @db.Text
+  vehicleId       String?  @map("vehicle_id")
+  vehicleDetails  String?  @map("vehicle_details") @db.Text
+  
+  // Trade-in specific fields
+  tradeInMake     String?  @map("trade_in_make")
+  tradeInModel    String?  @map("trade_in_model")
+  tradeInYear     Int?     @map("trade_in_year")
+  tradeInMileage  Int?     @map("trade_in_mileage")
+  
+  // Finance specific fields
+  financeAmount   Decimal? @map("finance_amount") @db.Decimal(10, 2)
+  financeDeposit  Decimal? @map("finance_deposit") @db.Decimal(10, 2)
+  
+  assignedTo      String?  @map("assigned_to")
+  internalNotes   String?  @map("internal_notes") @db.Text
+  priority        String   @default("normal") // low, normal, high, urgent
+  source          String   @default("website") // website, phone, email, walk_in
+  
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  vehicle         Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  @@map("enquiries")
+  @@index([enquiryType])
+  @@index([status])
+  @@index([vehicleId])
+  @@index([email])
+  @@index([assignedTo])
+  @@index([createdAt])
+  @@index([priority])
+}
+
+model Staff {
+  id           String   @id @default(uuid())
+  firstName    String   @map("first_name")
+  lastName     String   @map("last_name")
+  email        String   @unique
+  phone        String?
+  position     String
+  department   String?  // sales, service, finance, admin
+  photo        String?
+  isActive     Boolean  @default(true) @map("is_active")
+  employeeId   String?  @unique @map("employee_id")
+  startDate    DateTime @map("start_date")
+  bio          String?  @db.Text
+  
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  bookings     Booking[]
+  calendarBlocks CalendarBlock[]
+
+  @@map("staff")
+  @@index([email])
+  @@index([isActive])
+  @@index([department])
+}
+
+model Booking {
+  id                 String   @id @default(uuid())
+  bookingType        String   @map("booking_type") // test_drive, service, consultation, viewing
+  status             String   @default("pending") // pending, confirmed, completed, cancelled, no_show
+  scheduledDatetime  DateTime @map("scheduled_datetime")
+  durationMinutes    Int      @default(60) @map("duration_minutes")
+  
+  customerName       String   @map("customer_name")
+  customerPhone      String   @map("customer_phone")
+  customerEmail      String   @map("customer_email")
+  
+  vehicleId          String?  @map("vehicle_id")
+  staffId            String?  @map("staff_id")
+  
+  notes              String?  @db.Text
+  internalNotes      String?  @map("internal_notes") @db.Text
+  reminderSent       Boolean  @default(false) @map("reminder_sent")
+  confirmationSent   Boolean  @default(false) @map("confirmation_sent")
+  
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  vehicle            Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  staff              Staff?   @relation(fields: [staffId], references: [id], onDelete: SetNull)
+
+  @@map("bookings")
+  @@index([bookingType])
+  @@index([status])
+  @@index([scheduledDatetime])
+  @@index([vehicleId])
+  @@index([staffId])
+  @@index([customerEmail])
+  @@index([createdAt])
+}
+
+model CalendarBlock {
+  id           String   @id @default(uuid())
+  staffId      String?  @map("staff_id")
+  blockType    String   @map("block_type") // holiday, sick, meeting, busy, unavailable
+  title        String
+  description  String?  @db.Text
+  startTime    DateTime @map("start_time")
+  endTime      DateTime @map("end_time")
+  isAllDay     Boolean  @default(false) @map("is_all_day")
+  
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  staff        Staff?   @relation(fields: [staffId], references: [id], onDelete: SetNull)
+
+  @@map("calendar_blocks")
+  @@index([staffId])
+  @@index([startTime])
+  @@index([endTime])
+  @@index([blockType])
+}
