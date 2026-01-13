@@ -4,7 +4,6 @@ dotenv.config();
 
 const DEFAULT_CORS_ORIGINS = [
   'http://localhost:8081',
-  'http://localhost:5173',
 ];
 
 export default {
