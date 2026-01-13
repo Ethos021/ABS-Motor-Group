@@ -44,7 +44,7 @@
 
 ### 7. CORS Configuration
 ✅ **Explicit Origin Control**
-- Only allowed origin: http://localhost:8081 (configurable)
+- Allowed origins (configurable): http://localhost:8081 and http://localhost:5173
 - Credentials enabled
 - Specific HTTP methods allowed
 

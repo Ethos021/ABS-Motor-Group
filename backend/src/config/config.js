@@ -10,7 +10,10 @@ export default {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
   cors: {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:8081',
+    origin: (process.env.CORS_ORIGIN?.split(',') || [
+      'http://localhost:8081',
+      'http://localhost:5173',
+    ]).map(origin => origin.trim()).filter(Boolean),
   },
   rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes

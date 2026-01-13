@@ -17,10 +17,10 @@ git clone <repository-url>
 cd ABS-Motor-Group
 ```
 
-### 2. Start the Application
+### 2. Start Backend & Database (Docker)
 
 ```bash
-docker compose up --build
+docker compose up --build backend mysql phpmyadmin
 ```
 
 This single command will:
@@ -29,12 +29,24 @@ This single command will:
 - Run database migrations
 - Seed initial data
 - Start the backend API
-- Start the frontend application
 - Start phpMyAdmin
 
 **First build takes 5-10 minutes**. Subsequent starts are much faster.
 
-### 3. Wait for Services
+### 3. Start the Frontend (npm)
+
+In a separate terminal:
+
+```bash
+npm install
+npm run dev
+```
+
+This runs the Vite dev server on **http://localhost:8081**.
+
+> Need a containerized frontend? Run `docker compose --profile production up frontend` (port 8081), but stop the npm dev server first to avoid port conflicts.
+
+### 4. Wait for Services
 
 Watch the logs until you see:
 ```
@@ -42,17 +54,17 @@ abs-backend   | ✓ Database connected successfully
 abs-backend   | Server running on port 3000
 ```
 
-### 4. Access the Application
+### 5. Access the Application
 
 Open your browser and visit:
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| **Frontend** | http://localhost:8081 | Main website |
+| **Frontend (npm dev)** | http://localhost:8081 | Main website |
 | **API Health** | http://localhost:3000/api/health | Check API status |
 | **phpMyAdmin** | http://localhost:8080 | Database admin |
 
-### 5. Login with Default Credentials
+### 6. Login with Default Credentials
 
 #### Admin Account
 - Email: `admin@absmotorgroup.com`

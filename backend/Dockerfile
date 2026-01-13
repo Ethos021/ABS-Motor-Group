@@ -4,9 +4,6 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
-# Install dependencies for Prisma
-RUN apk add --no-cache openssl
-
 # Copy package files
 COPY package*.json ./
 COPY prisma ./prisma/
@@ -14,8 +11,8 @@ COPY prisma ./prisma/
 # Install dependencies
 RUN npm install
 
-# Generate Prisma Client
-RUN npx prisma generate
+# Generate Prisma Client (allow self-signed certs during build)
+RUN NODE_TLS_REJECT_UNAUTHORIZED=0 npx prisma generate
 
 # Copy application code
 COPY . .

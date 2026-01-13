@@ -24,7 +24,7 @@ A complete, production-ready JavaScript-only full-stack application for ABS Moto
 - **Seed Data**: Initial data with admin/staff users and sample vehicles
 
 ### ✅ Docker Setup
-- **4 Services**: Frontend, Backend, MySQL, phpMyAdmin
+- **Services**: Backend, MySQL, phpMyAdmin (frontend served via npm dev; container available via production profile)
 - **One Command Start**: `docker compose up --build`
 - **Networking**: Internal Docker network with proper isolation
 - **Volumes**: Persistent MySQL data and upload storage
