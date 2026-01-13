@@ -39,7 +39,7 @@ export default function AdminCalendar() {
 
   const { data: staff } = useQuery({
     queryKey: ['staff'],
-    queryFn: () => base44.entities.Staff.list(),
+    queryFn: () => Staff.list(),
     initialData: []
   });
 
