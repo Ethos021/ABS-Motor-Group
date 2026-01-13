@@ -1,17 +1,17 @@
-import { localApi } from './localApiClient';
+import { base44 } from './base44Client';
 
 
-export const Vehicle = localApi.entities.Vehicle;
+export const Vehicle = base44.entities.Vehicle;
 
-export const Enquiry = localApi.entities.Enquiry;
+export const Enquiry = base44.entities.Enquiry;
 
-export const Staff = localApi.entities.Staff;
+export const Staff = base44.entities.Staff;
 
-export const CalendarBlock = localApi.entities.CalendarBlock;
+export const CalendarBlock = base44.entities.CalendarBlock;
 
-export const Booking = localApi.entities.Booking;
+export const Booking = base44.entities.Booking;
 
 
 
 // auth sdk:
-export const User = localApi.auth;
+export const User = base44.auth;

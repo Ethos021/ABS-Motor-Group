@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { localApi } from "@/api/localApiClient";
+import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -14,20 +14,19 @@ export default function AdminRoute({ children }) {
 
   const checkAuth = async () => {
     try {
-      const currentUser = await localApi.auth.me();
+      const currentUser = await base44.auth.me();
       
       if (!currentUser || currentUser.role !== 'admin') {
         // Not authorized - redirect to home
         navigate(createPageUrl('Home'));
-        return setLoading(false);
+        return;
       }
       
       setUser(currentUser);
-    } catch (error) {
-      // Not authenticated - redirect to home without external login
-      navigate(createPageUrl('Home'));
-    } finally {
       setLoading(false);
+    } catch (error) {
+      // Not authenticated - redirect to login
+      base44.auth.redirectToLogin(window.location.pathname);
     }
   };
 

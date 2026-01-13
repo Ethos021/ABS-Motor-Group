@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { localApi } from "@/api/localApiClient";
+import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AdminRoute from "../components/auth/AdminRoute";
 import { Button } from "@/components/ui/button";
@@ -23,12 +23,12 @@ export default function AdminStaff() {
 
   const { data: staff, isLoading } = useQuery({
     queryKey: ['staff'],
-    queryFn: () => localApi.entities.Staff.list('-created_date'),
+    queryFn: () => base44.entities.Staff.list('-created_date'),
     initialData: []
   });
 
   const createStaffMutation = useMutation({
-    mutationFn: (data) => localApi.entities.Staff.create(data),
+    mutationFn: (data) => base44.entities.Staff.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['staff'] });
       setShowNewStaff(false);
@@ -37,7 +37,7 @@ export default function AdminStaff() {
   });
 
   const updateStaffMutation = useMutation({
-    mutationFn: ({ id, data }) => localApi.entities.Staff.update(id, data),
+    mutationFn: ({ id, data }) => base44.entities.Staff.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['staff'] });
     }

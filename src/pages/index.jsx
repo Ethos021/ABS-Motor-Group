@@ -72,7 +72,7 @@ function PagesContent() {
         <Layout currentPageName={currentPage}>
             <Routes>            
                 
-                    <Route path="/" element={<Home />} />
+                    <Route path="/" element={<About />} />
                 
                 
                 <Route path="/About" element={<About />} />
