@@ -38,6 +38,7 @@ app.use((req, res, next) => {
 // Health check endpoint (with light rate limiting)
 app.get('/health', apiLimiter, async (req, res) => {
   try {
+    // Try to execute a simple query
     await pool.query('SELECT 1');
     res.json({
       success: true,
@@ -46,10 +47,12 @@ app.get('/health', apiLimiter, async (req, res) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
+    console.error('Health check failed:', error);
     res.status(500).json({
       success: false,
       message: 'Database connection failed',
-      error: error.message
+      error: error.message,
+      timestamp: new Date().toISOString()
     });
   }
 });
@@ -97,7 +100,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`
 ╔════════════════════════════════════════╗
 ║  ABS Motor Group Backend API           ║
@@ -111,20 +114,24 @@ app.listen(PORT, () => {
 });
 
 // Handle graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
-  pool.end(() => {
-    console.log('Database pool closed');
-    process.exit(0);
+const gracefulShutdown = (signal) => {
+  console.log(`${signal} signal received: closing HTTP server`);
+  server.close(() => {
+    console.log('HTTP server closed');
+    pool.end(() => {
+      console.log('Database pool closed');
+      process.exit(0);
+    });
   });
-});
 
-process.on('SIGINT', () => {
-  console.log('SIGINT signal received: closing HTTP server');
-  pool.end(() => {
-    console.log('Database pool closed');
-    process.exit(0);
-  });
-});
+  // Force shutdown after 10 seconds
+  setTimeout(() => {
+    console.error('Could not close connections in time, forcefully shutting down');
+    process.exit(1);
+  }, 10000);
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 export default app;
