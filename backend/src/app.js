@@ -65,7 +65,18 @@ app.use((req, res, next) => {
     req.body = sanitizeObject(req.body);
   }
   if (req.query) {
-    req.query = sanitizeObject(req.query);
+    // Express 5 makes req.query a read-only getter; mutate the existing object instead of reassigning
+    const sanitizedQuery = sanitizeObject(req.query);
+    if (sanitizedQuery && typeof sanitizedQuery === 'object') {
+      for (const key of Object.keys(req.query)) {
+        if (!(key in sanitizedQuery)) {
+          delete req.query[key];
+        }
+      }
+      for (const key of Object.keys(sanitizedQuery)) {
+        req.query[key] = sanitizedQuery[key];
+      }
+    }
   }
   next();
 });

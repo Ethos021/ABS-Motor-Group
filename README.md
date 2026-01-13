@@ -90,23 +90,35 @@ git clone <repository-url>
 cd ABS-Motor-Group
 ```
 
-2. **Start all services**
+2. **Start backend & database (Docker)**
 ```bash
-docker compose up --build
+docker compose up --build backend mysql phpmyadmin
 ```
 
-That's it! The application will:
-- Build all containers
+This will:
+- Build the backend and database containers
 - Initialize the MySQL database
 - Run migrations
 - Seed initial data
-- Start all services
+- Start backend API and phpMyAdmin
+
+3. **Start the frontend (npm dev)**
+```bash
+npm install
+npm run dev
+```
+
+Need the production-style frontend container? Run:
+```bash
+docker compose --profile production up frontend
+```
+Stop the npm dev server first to avoid port conflicts.
 
 ### Access Points
 
 | Service | URL | Credentials |
 |---------|-----|-------------|
-| **Frontend** | http://localhost:8081 | - |
+| **Frontend (npm dev)** | http://localhost:8081 | - |
 | **Backend API** | http://localhost:3000 | - |
 | **phpMyAdmin** | http://localhost:8080 | User: `abs_user`<br>Password: `abs_password` |
 | **Health Check** | http://localhost:3000/api/health | - |
@@ -265,7 +277,7 @@ PORT=3000
 NODE_ENV=development
 JWT_SECRET=your-super-secret-jwt-key
 JWT_EXPIRES_IN=7d
-CORS_ORIGIN=http://localhost:8081
+CORS_ORIGIN=http://localhost:8081,http://localhost:5173
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100
 ```
