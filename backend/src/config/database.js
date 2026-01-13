@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const pool = mysql.createPool({
+const poolConfig = {
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 3306,
   database: process.env.DB_NAME || 'abs_motor_group',
@@ -13,17 +13,36 @@ const pool = mysql.createPool({
   connectionLimit: 20,
   queueLimit: 0,
   enableKeepAlive: true,
-  keepAliveInitialDelay: 0
-});
+  keepAliveInitialDelay: 0,
+  // Add connection retry settings
+  connectTimeout: 10000,
+  // Enable multiple statements for migrations
+  multipleStatements: true
+};
 
-// Test connection
-pool.getConnection()
-  .then(connection => {
-    console.log('Database connected successfully');
-    connection.release();
-  })
-  .catch(err => {
-    console.error('Database connection failed:', err);
-  });
+let pool = mysql.createPool(poolConfig);
+
+// Test connection with retry logic
+const testConnection = async (retries = 5, delay = 2000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const connection = await pool.getConnection();
+      console.log('Database connected successfully');
+      connection.release();
+      return true;
+    } catch (err) {
+      console.error(`Database connection attempt ${i + 1}/${retries} failed:`, err.message);
+      if (i < retries - 1) {
+        console.log(`Retrying in ${delay / 1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  console.error('Database connection failed after all retries');
+  return false;
+};
+
+// Start connection test
+testConnection();
 
 export default pool;
