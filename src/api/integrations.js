@@ -1,26 +1,98 @@
-import { base44 } from './base44Client';
+import apiClient from './apiClient';
 
+const CONTACT_WEBHOOK_URL = import.meta.env.VITE_CONTACT_WEBHOOK_URL;
 
+const postJson = async (url, payload) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
 
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `Failed to submit integration request to ${url}`);
+  }
 
-export const Core = base44.integrations.Core;
+  try {
+    return await response.json();
+  } catch {
+    return {};
+  }
+};
 
-export const InvokeLLM = base44.integrations.Core.InvokeLLM;
+const stripHtml = (html = '') => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  return (doc.body.textContent || '').trim();
+};
+const unsupportedFeature = (featureName) => {
+  throw new Error(`Feature not available: ${featureName} is not supported in this application.`);
+};
 
-export const SendEmail = base44.integrations.Core.SendEmail;
+export const Core = {
+  sendEnquiry: (data) => apiClient.create('enquiries', data),
+  createBooking: (data) => apiClient.create('bookings', data)
+};
 
-export const UploadFile = base44.integrations.Core.UploadFile;
+export const SendEmail = async ({ to, subject, body, metadata = {} }) => {
+  if (CONTACT_WEBHOOK_URL) {
+    return postJson(CONTACT_WEBHOOK_URL, {
+      to,
+      subject,
+      html: body,
+      metadata
+    });
+  }
 
-export const GenerateImage = base44.integrations.Core.GenerateImage;
+  const fallbackPayload = {
+    enquiryType: metadata.enquiryType || 'general',
+    firstName: metadata.firstName || 'Anonymous',
+    lastName: metadata.lastName || 'Enquiry',
+    email: metadata.email || to,
+    mobile: metadata.mobile || 'N/A',
+    message: metadata.message || stripHtml(body) || 'Website contact request',
+    vehicleId: metadata.vehicleId,
+    notes: metadata.notes
+  };
 
-export const ExtractDataFromUploadedFile = base44.integrations.Core.ExtractDataFromUploadedFile;
+  return Core.sendEnquiry(fallbackPayload);
+};
 
-export const CreateFileSignedUrl = base44.integrations.Core.CreateFileSignedUrl;
+export const UploadFile = async (file) => {
+  if (!file) {
+    throw new Error('File is required');
+  }
 
-export const UploadPrivateFile = base44.integrations.Core.UploadPrivateFile;
+  const formData = new FormData();
+  formData.append('file', file);
 
+  const headers = {};
+  const token = apiClient.getToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
 
+  const response = await fetch(`${apiClient.baseURL}/vehicles/import/csv`, {
+    method: 'POST',
+    headers,
+    body: formData
+  });
 
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to upload CSV file to vehicles import endpoint');
+  }
 
+  return response.json();
+};
 
+export const UploadPrivateFile = () => unsupportedFeature('private file uploads');
 
+export const CreateFileSignedUrl = () => unsupportedFeature('signed URL creation');
+
+export const ExtractDataFromUploadedFile = () => unsupportedFeature('file data extraction');
+
+export const GenerateImage = () => unsupportedFeature('image generation');
+
+export const InvokeLLM = () => unsupportedFeature('LLM interactions');
