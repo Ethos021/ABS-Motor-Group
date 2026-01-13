@@ -8,7 +8,10 @@ export default defineConfig({
   server: {
     allowedHosts: true,
     host: true,
-    port: 8081
+    port: 8081,
+    proxy: {
+      '/api': 'http://localhost:3000'
+    }
   },
   resolve: {
     alias: {
