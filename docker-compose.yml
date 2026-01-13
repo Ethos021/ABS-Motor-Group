@@ -1,18 +1,20 @@
 services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:15-alpine
-    container_name: abs-postgres
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: abs-mysql
     environment:
-      POSTGRES_DB: abs_motor_group
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      MYSQL_DATABASE: abs_motor_group
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_USER: abs_user
+      MYSQL_PASSWORD: mysql
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pmysql"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,11 +28,11 @@ services:
       dockerfile: Dockerfile
     container_name: abs-backend
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
+      DB_HOST: mysql
+      DB_PORT: 3306
       DB_NAME: abs_motor_group
-      DB_USER: postgres
-      DB_PASSWORD: postgres
+      DB_USER: root
+      DB_PASSWORD: mysql
       PORT: 3000
       NODE_ENV: production
       # IMPORTANT: Change this secret in production! Use a secure random value.
@@ -40,7 +42,7 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
     command: sh -c "npm run migrate && npm start"
     networks:
@@ -62,7 +64,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  mysql_data:
     driver: local
 
 networks:

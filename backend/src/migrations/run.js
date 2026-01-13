@@ -14,8 +14,18 @@ async function runMigrations() {
     const sqlFile = path.join(__dirname, '001_initial_schema.sql');
     const sql = fs.readFileSync(sqlFile, 'utf8');
 
-    // Execute the migration
-    await pool.query(sql);
+    // Split SQL statements by semicolons and execute each one
+    // MySQL2 doesn't support multiple statements in a single query by default
+    const statements = sql
+      .split(';')
+      .map(stmt => stmt.trim())
+      .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'));
+
+    for (const statement of statements) {
+      if (statement.trim()) {
+        await pool.query(statement);
+      }
+    }
 
     console.log('✓ Database migrations completed successfully!');
     process.exit(0);

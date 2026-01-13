@@ -1,45 +1,46 @@
 -- Create database schema for ABS Motor Group
 -- Run this script to initialize the database
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 -- User Entity (Built-in authentication)
 CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     full_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(50) DEFAULT 'user' CHECK (role IN ('admin', 'user')),
-    created_by UUID REFERENCES users(id)
-);
+    role VARCHAR(50) DEFAULT 'user',
+    created_by CHAR(36),
+    CONSTRAINT chk_user_role CHECK (role IN ('admin', 'user')),
+    CONSTRAINT fk_user_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Staff Entity
 CREATE TABLE IF NOT EXISTS staff (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by UUID REFERENCES users(id),
+    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by CHAR(36),
     
     full_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     phone VARCHAR(50),
-    role VARCHAR(50) NOT NULL CHECK (role IN ('Sales', 'Finance', 'Manager', 'Service Advisor')),
+    role VARCHAR(50) NOT NULL,
     is_active BOOLEAN DEFAULT true,
-    availability_hours JSONB
-);
+    availability_hours JSON,
+    CONSTRAINT chk_staff_role CHECK (role IN ('Sales', 'Finance', 'Manager', 'Service Advisor')),
+    CONSTRAINT fk_staff_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Enquiry Entity
 CREATE TABLE IF NOT EXISTS enquiries (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by UUID REFERENCES users(id),
+    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by CHAR(36),
     
     -- Enquiry Type & Basic Info
-    enquiry_type VARCHAR(50) NOT NULL CHECK (enquiry_type IN ('vehicle_interest', 'test_drive', 'finance', 'trade_in', 'general', 'sell_vehicle')),
+    enquiry_type VARCHAR(50) NOT NULL,
     firstName VARCHAR(100) NOT NULL,
     lastName VARCHAR(100) NOT NULL,
     mobile VARCHAR(50),
@@ -58,14 +59,14 @@ CREATE TABLE IF NOT EXISTS enquiries (
     wantsTestDrive BOOLEAN DEFAULT false,
     
     -- Vehicle Details
-    vehicleId UUID,
+    vehicleId CHAR(36),
     vehicleDetails TEXT,
     vehiclePrice DECIMAL(10, 2),
-    vehicleSnapshot JSONB,
-    financeEstimate JSONB,
+    vehicleSnapshot JSON,
+    financeEstimate JSON,
     
     -- Contact Preferences
-    preferredContactMethod VARCHAR(50) CHECK (preferredContactMethod IN ('phone', 'email', 'whatsapp')),
+    preferredContactMethod VARCHAR(50),
     preferredContactTime VARCHAR(100),
     
     -- Tracking & Attribution
@@ -77,20 +78,26 @@ CREATE TABLE IF NOT EXISTS enquiries (
     ipAddress VARCHAR(45),
     
     -- Status & Management
-    status VARCHAR(50) DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'qualified', 'appointment_set', 'lost', 'closed_won', 'closed_lost')),
-    priority VARCHAR(50) DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
-    assignedStaffId UUID REFERENCES staff(id),
-    contactedAt TIMESTAMP,
-    closedAt TIMESTAMP,
-    internalNotes TEXT
-);
+    status VARCHAR(50) DEFAULT 'new',
+    priority VARCHAR(50) DEFAULT 'medium',
+    assignedStaffId CHAR(36),
+    contactedAt TIMESTAMP NULL,
+    closedAt TIMESTAMP NULL,
+    internalNotes TEXT,
+    CONSTRAINT chk_enquiry_type CHECK (enquiry_type IN ('vehicle_interest', 'test_drive', 'finance', 'trade_in', 'general', 'sell_vehicle')),
+    CONSTRAINT chk_enquiry_contact_method CHECK (preferredContactMethod IS NULL OR preferredContactMethod IN ('phone', 'email', 'whatsapp')),
+    CONSTRAINT chk_enquiry_status CHECK (status IN ('new', 'contacted', 'qualified', 'appointment_set', 'lost', 'closed_won', 'closed_lost')),
+    CONSTRAINT chk_enquiry_priority CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
+    CONSTRAINT fk_enquiry_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_enquiry_staff FOREIGN KEY (assignedStaffId) REFERENCES staff(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- CalendarBlock Entity
 CREATE TABLE IF NOT EXISTS calendar_blocks (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by UUID REFERENCES users(id),
+    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by CHAR(36),
     
     title VARCHAR(255) NOT NULL,
     start_datetime TIMESTAMP NOT NULL,
@@ -98,34 +105,38 @@ CREATE TABLE IF NOT EXISTS calendar_blocks (
     
     -- Recurrence
     is_recurring BOOLEAN DEFAULT false,
-    recurrence_pattern VARCHAR(50) CHECK (recurrence_pattern IN ('daily', 'weekly', 'monthly', 'yearly')),
-    recurrence_end_date TIMESTAMP,
+    recurrence_pattern VARCHAR(50),
+    recurrence_end_date TIMESTAMP NULL,
     
     -- Block Details
-    block_type VARCHAR(50) NOT NULL CHECK (block_type IN ('holiday', 'meeting', 'maintenance', 'training', 'other')),
-    staff_id UUID REFERENCES staff(id),
+    block_type VARCHAR(50) NOT NULL,
+    staff_id CHAR(36),
     notes TEXT,
-    is_active BOOLEAN DEFAULT true
-);
+    is_active BOOLEAN DEFAULT true,
+    CONSTRAINT chk_calendar_recurrence CHECK (recurrence_pattern IS NULL OR recurrence_pattern IN ('daily', 'weekly', 'monthly', 'yearly')),
+    CONSTRAINT chk_calendar_block_type CHECK (block_type IN ('holiday', 'meeting', 'maintenance', 'training', 'other')),
+    CONSTRAINT fk_calendar_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_calendar_staff FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Booking Entity
 CREATE TABLE IF NOT EXISTS bookings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by UUID REFERENCES users(id),
+    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by CHAR(36),
     
-    enquiry_id UUID REFERENCES enquiries(id),
-    booking_type VARCHAR(50) NOT NULL CHECK (booking_type IN ('test_drive', 'inspection', 'finance_meeting', 'delivery', 'consultation')),
+    enquiry_id CHAR(36),
+    booking_type VARCHAR(50) NOT NULL,
     
     -- Schedule
     scheduled_datetime TIMESTAMP NOT NULL,
     duration_minutes INTEGER DEFAULT 30,
     
     -- Assignments
-    staff_id UUID REFERENCES staff(id),
-    vehicle_id UUID,
-    vehicle_snapshot JSONB,
+    staff_id CHAR(36),
+    vehicle_id CHAR(36),
+    vehicle_snapshot JSON,
     
     -- Customer Info
     customer_name VARCHAR(255) NOT NULL,
@@ -133,7 +144,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     customer_phone VARCHAR(50),
     
     -- Status & Communication
-    status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled', 'no_show')),
+    status VARCHAR(50) DEFAULT 'pending',
     confirmation_sent BOOLEAN DEFAULT false,
     reminder_sent BOOLEAN DEFAULT false,
     
@@ -141,52 +152,33 @@ CREATE TABLE IF NOT EXISTS bookings (
     notes TEXT,
     customer_notes TEXT,
     cancellation_reason TEXT,
-    cancelled_at TIMESTAMP
-);
+    cancelled_at TIMESTAMP NULL,
+    CONSTRAINT chk_booking_type CHECK (booking_type IN ('test_drive', 'inspection', 'finance_meeting', 'delivery', 'consultation')),
+    CONSTRAINT chk_booking_status CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled', 'no_show')),
+    CONSTRAINT fk_booking_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_booking_enquiry FOREIGN KEY (enquiry_id) REFERENCES enquiries(id) ON DELETE SET NULL,
+    CONSTRAINT fk_booking_staff FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create indexes for better query performance
-CREATE INDEX IF NOT EXISTS idx_enquiries_status ON enquiries(status);
-CREATE INDEX IF NOT EXISTS idx_enquiries_type ON enquiries(enquiry_type);
-CREATE INDEX IF NOT EXISTS idx_enquiries_assigned_staff ON enquiries(assignedStaffId);
-CREATE INDEX IF NOT EXISTS idx_enquiries_created_date ON enquiries(created_date);
-CREATE INDEX IF NOT EXISTS idx_enquiries_email ON enquiries(email);
+CREATE INDEX idx_enquiries_status ON enquiries(status);
+CREATE INDEX idx_enquiries_type ON enquiries(enquiry_type);
+CREATE INDEX idx_enquiries_assigned_staff ON enquiries(assignedStaffId);
+CREATE INDEX idx_enquiries_created_date ON enquiries(created_date);
+CREATE INDEX idx_enquiries_email ON enquiries(email);
 
-CREATE INDEX IF NOT EXISTS idx_staff_email ON staff(email);
-CREATE INDEX IF NOT EXISTS idx_staff_role ON staff(role);
-CREATE INDEX IF NOT EXISTS idx_staff_active ON staff(is_active);
+CREATE INDEX idx_staff_email ON staff(email);
+CREATE INDEX idx_staff_role ON staff(role);
+CREATE INDEX idx_staff_active ON staff(is_active);
 
-CREATE INDEX IF NOT EXISTS idx_calendar_blocks_staff ON calendar_blocks(staff_id);
-CREATE INDEX IF NOT EXISTS idx_calendar_blocks_dates ON calendar_blocks(start_datetime, end_datetime);
-CREATE INDEX IF NOT EXISTS idx_calendar_blocks_active ON calendar_blocks(is_active);
+CREATE INDEX idx_calendar_blocks_staff ON calendar_blocks(staff_id);
+CREATE INDEX idx_calendar_blocks_dates ON calendar_blocks(start_datetime, end_datetime);
+CREATE INDEX idx_calendar_blocks_active ON calendar_blocks(is_active);
 
-CREATE INDEX IF NOT EXISTS idx_bookings_enquiry ON bookings(enquiry_id);
-CREATE INDEX IF NOT EXISTS idx_bookings_staff ON bookings(staff_id);
-CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
-CREATE INDEX IF NOT EXISTS idx_bookings_datetime ON bookings(scheduled_datetime);
-CREATE INDEX IF NOT EXISTS idx_bookings_email ON bookings(customer_email);
+CREATE INDEX idx_bookings_enquiry ON bookings(enquiry_id);
+CREATE INDEX idx_bookings_staff ON bookings(staff_id);
+CREATE INDEX idx_bookings_status ON bookings(status);
+CREATE INDEX idx_bookings_datetime ON bookings(scheduled_datetime);
+CREATE INDEX idx_bookings_email ON bookings(customer_email);
 
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-
--- Create triggers for updated_date
-CREATE OR REPLACE FUNCTION update_updated_date_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_date = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
-CREATE TRIGGER update_users_updated_date BEFORE UPDATE ON users
-    FOR EACH ROW EXECUTE FUNCTION update_updated_date_column();
-
-CREATE TRIGGER update_staff_updated_date BEFORE UPDATE ON staff
-    FOR EACH ROW EXECUTE FUNCTION update_updated_date_column();
-
-CREATE TRIGGER update_enquiries_updated_date BEFORE UPDATE ON enquiries
-    FOR EACH ROW EXECUTE FUNCTION update_updated_date_column();
-
-CREATE TRIGGER update_calendar_blocks_updated_date BEFORE UPDATE ON calendar_blocks
-    FOR EACH ROW EXECUTE FUNCTION update_updated_date_column();
-
-CREATE TRIGGER update_bookings_updated_date BEFORE UPDATE ON bookings
-    FOR EACH ROW EXECUTE FUNCTION update_updated_date_column();
+CREATE INDEX idx_users_email ON users(email);
