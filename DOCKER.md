@@ -30,21 +30,30 @@ docker compose up -d
 The services will be available at:
 - **Frontend**: http://localhost:8080
 - **Backend API**: http://localhost:3000
-- **PostgreSQL**: localhost:5432
+- **MySQL**: localhost:3306
+- **phpMyAdmin**: http://localhost:8081
 
 ## Services
 
-The Docker setup includes three services:
+The Docker setup includes four services:
 
-### 1. PostgreSQL Database (`postgres`)
-- **Image**: postgres:15-alpine
-- **Port**: 5432
+### 1. MySQL Database (`mysql`)
+- **Image**: mysql:8.0
+- **Port**: 3306
 - **Database**: abs_motor_group
-- **User**: postgres
-- **Password**: postgres (change in production!)
+- **Root Password**: mysql (change in production!)
+- **User**: abs_user
+- **Password**: mysql (change in production!)
 - **Data**: Persisted in a Docker volume
 
-### 2. Backend API (`backend`)
+### 2. phpMyAdmin (`phpmyadmin`)
+- **Image**: phpmyadmin:5.2
+- **Port**: 8081
+- **Access**: http://localhost:8081
+- **Purpose**: Web-based MySQL database management interface
+- **Login**: Use root/mysql or abs_user/mysql credentials
+
+### 3. Backend API (`backend`)
 - **Port**: 3000
 - **Technology**: Node.js/Express
 - **Features**: 
@@ -52,7 +61,7 @@ The Docker setup includes three services:
   - JWT authentication
   - RESTful API endpoints
 
-### 3. Frontend (`frontend`)
+### 4. Frontend (`frontend`)
 - **Port**: 8080
 - **Technology**: React/Vite with Nginx
 - **Features**:
@@ -101,7 +110,8 @@ docker-compose logs
 # Specific service
 docker-compose logs backend
 docker-compose logs frontend
-docker-compose logs postgres
+docker-compose logs mysql
+docker-compose logs phpmyadmin
 
 # Follow logs in real-time
 docker-compose logs -f
@@ -139,8 +149,11 @@ docker-compose ps
 # Access backend shell
 docker-compose exec backend sh
 
-# Access database
-docker-compose exec postgres psql -U postgres -d abs_motor_group
+# Access database via MySQL CLI
+docker-compose exec mysql mysql -u root -pmysql abs_motor_group
+
+# Or access database via phpMyAdmin
+# Open http://localhost:8081 in your browser
 
 # Run migrations manually
 docker-compose exec backend npm run migrate
@@ -164,14 +177,15 @@ volumes:
 For production deployment:
 
 1. **Change default credentials**:
-   - Update `POSTGRES_PASSWORD` in docker-compose.yml
+   - Update `MYSQL_ROOT_PASSWORD` in docker-compose.yml
    - Update `JWT_SECRET` with a secure random value
-   - Update `DB_PASSWORD` to match postgres password
+   - Update `MYSQL_PASSWORD` and `MYSQL_USER` as needed
+   - Update phpMyAdmin credentials accordingly
 
 2. **Use environment files**:
    ```bash
    # Create .env file
-   POSTGRES_PASSWORD=your_secure_password
+   MYSQL_ROOT_PASSWORD=your_secure_password
    JWT_SECRET=your_secure_jwt_secret
    ```
 
@@ -182,31 +196,32 @@ For production deployment:
 4. **Set up backups**:
    ```bash
    # Backup database
-   docker-compose exec postgres pg_dump -U postgres abs_motor_group > backup.sql
+   docker-compose exec mysql mysqldump -u root -pmysql abs_motor_group > backup.sql
    
    # Restore database
-   docker-compose exec -T postgres psql -U postgres abs_motor_group < backup.sql
+   docker-compose exec -T mysql mysql -u root -pmysql abs_motor_group < backup.sql
    ```
 
 ## Networking
 
 All services are connected via the `abs-network` bridge network. Services can communicate using their service names:
 
-- Backend connects to database at `postgres:5432`
+- Backend connects to database at `mysql:3306`
+- phpMyAdmin connects to database at `mysql:3306`
 - Frontend can call backend at `backend:3000`
 
 ## Data Persistence
 
-Database data is persisted in a Docker volume named `postgres_data`. This ensures data survives container restarts.
+Database data is persisted in a Docker volume named `mysql_data`. This ensures data survives container restarts.
 
 To backup the volume:
 ```bash
-docker run --rm -v abs-motor-group_postgres_data:/data -v $(pwd):/backup alpine tar czf /backup/postgres_backup.tar.gz -C /data .
+docker run --rm -v abs-motor-group_mysql_data:/data -v $(pwd):/backup alpine tar czf /backup/mysql_backup.tar.gz -C /data .
 ```
 
 To restore the volume:
 ```bash
-docker run --rm -v abs-motor-group_postgres_data:/data -v $(pwd):/backup alpine tar xzf /backup/postgres_backup.tar.gz -C /data
+docker run --rm -v abs-motor-group_mysql_data:/data -v $(pwd):/backup alpine tar xzf /backup/mysql_backup.tar.gz -C /data
 ```
 
 ## Troubleshooting
@@ -217,24 +232,28 @@ If you get a port conflict error:
 ```bash
 # Check what's using the port
 lsof -i :8080  # For frontend
+lsof -i :8081  # For phpMyAdmin
 lsof -i :3000  # For backend
-lsof -i :5432  # For postgres
+lsof -i :3306  # For mysql
 
 # Stop the conflicting service or change the port in docker-compose.yml
 ```
 
 ### Database connection issues
 ```bash
-# Check if postgres is healthy
+# Check if mysql is healthy
 docker-compose ps
 
-# View postgres logs
-docker-compose logs postgres
+# View mysql logs
+docker-compose logs mysql
 
 # Manually test connection
 docker-compose exec backend sh
 # Inside container:
-nc -zv postgres 5432
+nc -zv mysql 3306
+
+# Or use phpMyAdmin to verify database connectivity
+# Open http://localhost:8081 in browser
 ```
 
 ### Frontend not loading
@@ -253,7 +272,7 @@ curl http://localhost:3000/health
 ```bash
 # Fix permissions on volumes
 docker-compose down
-sudo chown -R $USER:$USER postgres_data
+sudo chown -R $USER:$USER mysql_data
 docker-compose up
 ```
 
@@ -276,9 +295,10 @@ You can override environment variables using a `.env` file in the root directory
 
 ```env
 # Database
-POSTGRES_DB=abs_motor_group
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=your_secure_password
+MYSQL_DATABASE=abs_motor_group
+MYSQL_ROOT_PASSWORD=your_secure_password
+MYSQL_USER=abs_user
+MYSQL_PASSWORD=your_secure_password
 
 # Backend
 PORT=3000
@@ -291,12 +311,12 @@ CORS_ORIGIN=http://localhost:8080
 Then reference them in docker-compose.yml:
 ```yaml
 environment:
-  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
 ```
 
 ## Health Checks
 
-The PostgreSQL service includes a health check. The backend service waits for postgres to be healthy before starting.
+The MySQL service includes a health check. The backend service and phpMyAdmin wait for MySQL to be healthy before starting.
 
 To check service health:
 ```bash
@@ -307,19 +327,22 @@ docker-compose ps
 
 **Important**: Change the following before deploying to production:
 
-1. ✅ `POSTGRES_PASSWORD` - Use a strong password
-2. ✅ `JWT_SECRET` - Use a cryptographically secure random string
-3. ✅ `CORS_ORIGIN` - Set to your actual frontend domain
-4. ✅ Enable HTTPS/SSL
-5. ✅ Use secrets management (Docker Secrets, Kubernetes Secrets, etc.)
-6. ✅ Set up firewall rules
-7. ✅ Regular security updates
+1. ✅ `MYSQL_ROOT_PASSWORD` - Use a strong password
+2. ✅ `MYSQL_PASSWORD` - Use a strong password
+3. ✅ `JWT_SECRET` - Use a cryptographically secure random string
+4. ✅ `CORS_ORIGIN` - Set to your actual frontend domain
+5. ✅ Enable HTTPS/SSL
+6. ✅ Use secrets management (Docker Secrets, Kubernetes Secrets, etc.)
+7. ✅ Set up firewall rules
+8. ✅ Regular security updates
+9. ✅ Disable or secure phpMyAdmin in production (consider removing or restricting access)
 
 ## Additional Resources
 
 - [Docker Documentation](https://docs.docker.com/)
 - [Docker Compose Documentation](https://docs.docker.com/compose/)
-- [PostgreSQL Docker Image](https://hub.docker.com/_/postgres)
+- [MySQL Docker Image](https://hub.docker.com/_/mysql)
+- [phpMyAdmin Docker Image](https://hub.docker.com/_/phpmyadmin)
 - [Node.js Docker Best Practices](https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md)
 
 ## Support
