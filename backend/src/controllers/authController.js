@@ -8,7 +8,7 @@ export const register = async (req, res) => {
 
     // Ensure the email belongs to an active staff member
     const staffMember = await Staff.findByEmail(email);
-    if (!staffMember || staffMember.is_active === false) {
+    if (!staffMember || !staffMember.is_active) {
       return res.status(403).json({
         success: false,
         message: 'Only active staff members can create user accounts'
@@ -72,7 +72,7 @@ export const login = async (req, res) => {
 
     // Ensure user is an active staff member
     const staffMember = await Staff.findByEmail(email);
-    if (!staffMember || staffMember.is_active === false) {
+    if (!staffMember || !staffMember.is_active) {
       return res.status(403).json({
         success: false,
         message: 'Login is restricted to active staff members'
