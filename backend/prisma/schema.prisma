@@ -105,10 +105,10 @@ model Dealer {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
+  @@map("dealers")
   @@index([city])
   @@index([state])
   @@index([country])
-  @@map("dealers")
 }
 
 model Vehicle {
@@ -188,13 +188,13 @@ model Vehicle {
   enquiries     Enquiry[]
   bookings      Booking[]
 
+  @@map("vehicles")
   @@index([make])
   @@index([model])
   @@index([year])
   @@index([status])
   @@index([dealerId])
   @@index([createdBy])
-  @@map("vehicles")
 }
 
 model Customer {
@@ -208,9 +208,9 @@ model Customer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@map("customers")
   @@index([lastName])
   @@index([email])
-  @@map("customers")
 }
 
 model Sale {
@@ -228,11 +228,11 @@ model Sale {
   customer Customer @relation(fields: [customerId], references: [id])
   dealer   Dealer?  @relation(fields: [dealerId], references: [id], onDelete: SetNull)
 
+  @@map("sales")
   @@index([vehicleId])
   @@index([customerId])
   @@index([dealerId])
   @@index([saleDate])
-  @@map("sales")
 }
 
 model Enquiry {
@@ -278,12 +278,12 @@ model Enquiry {
   assignedStaff Staff?    @relation("EnquiryAssignedStaff", fields: [assignedStaffId], references: [id])
   bookings      Booking[]
 
+  @@map("enquiries")
   @@index([enquiryType])
   @@index([vehicleId])
   @@index([assignedStaffId])
   @@index([status])
   @@index([priority])
-  @@map("enquiries")
 }
 
 model Staff {
@@ -303,9 +303,9 @@ model Staff {
   calendarBlocks    CalendarBlock[]
   bookings          Booking[]
 
+  @@map("staff")
   @@index([role])
   @@index([isActive])
-  @@map("staff")
 }
 
 model CalendarBlock {
@@ -327,10 +327,10 @@ model CalendarBlock {
   createdByUser User?  @relation("CalendarBlockCreatedBy", fields: [createdBy], references: [id])
   staff         Staff? @relation(fields: [staffId], references: [id])
 
+  @@map("calendar_blocks")
   @@index([blockType])
   @@index([staffId])
   @@index([isActive])
-  @@map("calendar_blocks")
 }
 
 model Booking {
@@ -361,12 +361,12 @@ model Booking {
   staff         Staff?   @relation(fields: [staffId], references: [id])
   vehicle       Vehicle? @relation(fields: [vehicleId], references: [id])
 
+  @@map("bookings")
   @@index([enquiryId])
   @@index([staffId])
   @@index([vehicleId])
   @@index([bookingType])
   @@index([status])
-  @@map("bookings")
 }
 
 model User {
@@ -386,6 +386,6 @@ model User {
   calendarBlocksCreated CalendarBlock[] @relation("CalendarBlockCreatedBy")
   bookingsCreated       Booking[]       @relation("BookingCreatedBy")
 
-  @@index([role])
   @@map("users")
+  @@index([role])
 }
