@@ -16,6 +16,8 @@ The compose file starts:
 - The frontend service, built with `VITE_API_URL` from `.env`.
 - phpMyAdmin at http://localhost:8080 for viewing the MySQL database (auto-logs in using the credentials from `.env`, no login form).
 
+> phpMyAdmin auto-login is intended for local development—avoid exposing it publicly.
+
 ## Local development (without Docker)
 
 - Backend: set `DATABASE_URL` and `CORS_ORIGIN` in `backend/.env`, then run:

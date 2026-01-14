@@ -10,4 +10,4 @@ $cfg['Servers'][1]['port'] = $port;
 $cfg['Servers'][1]['auth_type'] = 'config';
 $cfg['Servers'][1]['user'] = $user;
 $cfg['Servers'][1]['password'] = $password;
-$cfg['Servers'][1]['AllowNoPassword'] = $password === '';
+$cfg['Servers'][1]['AllowNoPassword'] = false;
