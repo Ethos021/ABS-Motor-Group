@@ -20,7 +20,3 @@ uploads/
 
 # OS
 .DS_Store
-
-# Prisma migrations (will be generated in Docker)
-prisma/migrations/
-
