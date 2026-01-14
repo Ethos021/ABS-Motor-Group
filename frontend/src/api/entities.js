@@ -57,8 +57,9 @@ const toNumber = (value) => {
   if (value === undefined || value === null || value === "") return undefined;
   if (typeof value === "number" && Number.isFinite(value)) return value;
   const stringValue = typeof value === "string" ? value : String(value);
-  const match = stringValue.match(/-?\d+(\.\d+)?/);
-  const parsed = match ? Number(match[0]) : Number(stringValue);
+  const cleaned = stringValue.replace(/[^0-9.-]/g, "");
+  if (!/^-?\d+(\.\d+)?$/.test(cleaned)) return undefined;
+  const parsed = Number(cleaned);
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
@@ -142,8 +143,8 @@ const buildEnquiryPayload = (input = {}, applyDefaults = true) => {
 
   if (!firstName && !lastName && input.name) {
     const parts = input.name.toString().trim().split(/\s+/);
-    firstName = parts[0] ?? "";
-    lastName = parts.slice(1).join(" ");
+    if (parts.length > 0) firstName = parts[0];
+    if (parts.length > 1) lastName = parts.slice(1).join(" ");
   }
 
   if (!firstName && applyDefaults) firstName = "Customer";
