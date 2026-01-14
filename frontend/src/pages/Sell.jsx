@@ -335,7 +335,7 @@ export default function Sell() {
                 <div className="w-16 h-16 gradient-red rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-8 h-8 text-zinc-50" />
                 </div>
-                <h3 className="2xl font-bold text-zinc-50 mb-4">Submission Received</h3>
+                <h3 className="text-2xl font-bold text-zinc-50 mb-4">Submission Received</h3>
                 <p className="text-zinc-400 mb-6 max-w-md mx-auto">
                   Thank you for choosing A.B.S Motor Group. Our valuation team will review your vehicle details and contact you within 24 hours.
                 </p>
