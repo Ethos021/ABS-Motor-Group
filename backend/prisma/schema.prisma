@@ -1,5 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma schema for ABS Motor Group
 
 generator client {
   provider = "prisma-client-js"
@@ -15,6 +14,81 @@ enum VehicleStatus {
   RESERVED
   SOLD
   IN_TRANSIT
+}
+
+enum EnquiryType {
+  vehicle_interest
+  test_drive
+  finance
+  trade_in
+  general
+  sell_vehicle
+}
+
+enum EnquiryStatus {
+  new
+  contacted
+  qualified
+  appointment_set
+  lost
+  closed_won
+  closed_lost
+}
+
+enum EnquiryPriority {
+  low
+  medium
+  high
+  urgent
+}
+
+enum PreferredContactMethod {
+  phone
+  email
+  whatsapp
+}
+
+enum RecurrencePattern {
+  daily
+  weekly
+  monthly
+  yearly
+}
+
+enum BlockType {
+  holiday
+  meeting
+  maintenance
+  training
+  other
+}
+
+enum BookingType {
+  test_drive
+  inspection
+  finance_meeting
+  delivery
+  consultation
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  completed
+  cancelled
+  no_show
+}
+
+enum StaffRole {
+  SALES
+  FINANCE
+  MANAGER
+  SERVICE_ADVISOR
+}
+
+enum UserRole {
+  ADMIN
+  USER
 }
 
 model Dealer {
@@ -38,25 +112,81 @@ model Dealer {
 }
 
 model Vehicle {
-  id           Int            @id @default(autoincrement())
-  vin          String?        @unique
-  stockNumber  String?        @unique @map("stock_number")
-  make         String
-  model        String
-  year         Int
-  price        Decimal        @db.Decimal(10, 2)
-  mileage      Int?
-  status       VehicleStatus  @default(AVAILABLE)
-  bodyType     String?        @map("body_type")
-  fuelType     String?        @map("fuel_type")
-  transmission String?
-  color        String?
-  dealerId     Int?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id                Int           @id @default(autoincrement())
+  createdAt         DateTime      @default(now()) @map("created_date")
+  updatedAt         DateTime      @updatedAt @map("updated_date")
+  createdBy         Int?          @map("created_by")
+  vin               String?       @unique
+  stockNumber       String?       @unique @map("stock_number")
+  make              String
+  model             String
+  badge             String?
+  regoNum           String?       @map("rego_num")
+  price             Decimal       @db.Decimal(12, 2)
+  specialPrice      Decimal?      @map("special_price") @db.Decimal(12, 2)
+  year              Int
+  odometer          Int?
+  mileage           Int?
+  status            VehicleStatus @default(AVAILABLE)
+  bodyType          String?       @map("body")
+  fuelType          String?       @map("fuel_type")
+  transmission      String?
+  gearType          String?       @map("gear_type")
+  gearCount         Int?          @map("gear_count")
+  color             String?
+  interiorColour    String?       @map("interior_colour")
+  engineSize        String?       @map("engine_size")
+  drive             String?
+  doorNum           Int?          @map("door_num")
+  cylinders         Int?
+  powerKw           Int?          @map("power_kw")
+  powerHp           Int?          @map("power_hp")
+  standardFeatures  String?       @map("standard_features") @db.Text
+  optionalFeatures  String?       @map("optional_features") @db.Text
+  advDescription    String?       @map("adv_description") @db.Text
+  shortDescription  String?       @map("short_description") @db.Text
+  stockType         String?       @map("stock_type")
+  isDemo            Boolean       @default(false) @map("is_demo")
+  isSpecial         Boolean       @default(false) @map("is_special")
+  isPrestiged       Boolean       @default(false) @map("is_prestiged")
+  isUsed            Boolean       @default(false) @map("is_used")
+  isDAP             Boolean       @default(false) @map("is_dap")
+  isFeatured        Boolean       @default(false) @map("is_featured")
+  stockStatus       String?       @map("stock_status")
+  yardCode          String?       @map("yard_code")
+  series            String?
+  nvic              String?
+  redbookCode       String?       @map("redbook_code")
+  regoExpiry        DateTime?     @map("rego_expiry")
+  buildDate         DateTime?     @map("build_date")
+  complianceDate    DateTime?     @map("compliance_date")
+  videoLink         String?       @map("video_link")
+  images            Json?
+  sleepingCapacity  Int?          @map("sleeping_capacity")
+  toilet            Boolean?
+  shower            Boolean?
+  airConditioning   Boolean?      @map("air_conditioning")
+  fridge            Boolean?
+  stereo            Boolean?
+  gps               Boolean?
+  serialNumber      String?       @map("serial_number")
+  wheelSize         String?       @map("wheel_size")
+  towballWeight     Int?          @map("towball_weight")
+  warranty          String?
+  wheels            String?
+  axleConfiguration String?       @map("axle_configuration")
+  gcm               Int?
+  gvm               Int?
+  tare              Int?
+  engineNumber      String?       @map("engine_number")
+  engineMake        String?       @map("engine_make")
+  dealerId          Int?
 
-  dealer Dealer? @relation(fields: [dealerId], references: [id], onDelete: SetNull)
-  sales  Sale[]
+  createdByUser User?     @relation("VehicleCreatedBy", fields: [createdBy], references: [id])
+  dealer        Dealer?   @relation(fields: [dealerId], references: [id], onDelete: SetNull)
+  sales         Sale[]
+  enquiries     Enquiry[]
+  bookings      Booking[]
 
   @@map("vehicles")
   @@index([make])
@@ -64,6 +194,7 @@ model Vehicle {
   @@index([year])
   @@index([status])
   @@index([dealerId])
+  @@index([createdBy])
 }
 
 model Customer {
@@ -88,7 +219,7 @@ model Sale {
   customerId Int
   dealerId   Int?
   saleDate   DateTime @default(now()) @map("sale_date")
-  salePrice  Decimal  @db.Decimal(10, 2) @map("sale_price")
+  salePrice  Decimal  @map("sale_price") @db.Decimal(12, 2)
   notes      String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -102,4 +233,159 @@ model Sale {
   @@index([customerId])
   @@index([dealerId])
   @@index([saleDate])
+}
+
+model Enquiry {
+  id                     Int                     @id @default(autoincrement())
+  createdAt              DateTime                @default(now()) @map("created_date")
+  updatedAt              DateTime                @updatedAt @map("updated_date")
+  createdBy              Int?                    @map("created_by")
+  enquiryType            EnquiryType             @map("enquiry_type")
+  firstName              String                  @map("first_name")
+  lastName               String                  @map("last_name")
+  mobile                 String?
+  email                  String?
+  message                String?                 @db.Text
+  hasTradein             Boolean                 @default(false) @map("has_tradein")
+  tradeInYear            Int?                    @map("trade_in_year")
+  tradeInMake            String?                 @map("trade_in_make")
+  tradeInModel           String?                 @map("trade_in_model")
+  tradeInOdometer        Int?                    @map("trade_in_odometer")
+  wantsFinance           Boolean                 @default(false) @map("wants_finance")
+  wantsTestDrive         Boolean                 @default(false) @map("wants_test_drive")
+  vehicleId              Int?                    @map("vehicle_id")
+  vehicleDetails         String?                 @map("vehicle_details")
+  vehiclePrice           Decimal?                @map("vehicle_price") @db.Decimal(12, 2)
+  vehicleSnapshot        Json?                   @map("vehicle_snapshot")
+  financeEstimate        Decimal?                @map("finance_estimate") @db.Decimal(12, 2)
+  preferredContactMethod PreferredContactMethod? @map("preferred_contact_method")
+  preferredContactTime   String?                 @map("preferred_contact_time")
+  utmSource              String?                 @map("utm_source")
+  utmMedium              String?                 @map("utm_medium")
+  utmCampaign            String?                 @map("utm_campaign")
+  referrer               String?
+  pageUrl                String?                 @map("page_url")
+  ipAddress              String?                 @map("ip_address")
+  status                 EnquiryStatus           @default(new)
+  priority               EnquiryPriority         @default(medium)
+  assignedStaffId        Int?                    @map("assigned_staff_id")
+  contactedAt            DateTime?               @map("contacted_at")
+  closedAt               DateTime?               @map("closed_at")
+  internalNotes          String?                 @map("internal_notes")
+
+  createdByUser User?     @relation("EnquiryCreatedBy", fields: [createdBy], references: [id])
+  vehicle       Vehicle?  @relation(fields: [vehicleId], references: [id])
+  assignedStaff Staff?    @relation("EnquiryAssignedStaff", fields: [assignedStaffId], references: [id])
+  bookings      Booking[]
+
+  @@map("enquiries")
+  @@index([enquiryType])
+  @@index([vehicleId])
+  @@index([assignedStaffId])
+  @@index([status])
+  @@index([priority])
+}
+
+model Staff {
+  id                Int       @id @default(autoincrement())
+  createdAt         DateTime  @default(now()) @map("created_date")
+  updatedAt         DateTime  @updatedAt @map("updated_date")
+  createdBy         Int?      @map("created_by")
+  fullName          String    @map("full_name")
+  email             String    @unique
+  phone             String?
+  role              StaffRole
+  isActive          Boolean   @default(true) @map("is_active")
+  availabilityHours Json?     @map("availability_hours")
+
+  createdByUser     User?           @relation("StaffCreatedBy", fields: [createdBy], references: [id])
+  assignedEnquiries Enquiry[]       @relation("EnquiryAssignedStaff")
+  calendarBlocks    CalendarBlock[]
+  bookings          Booking[]
+
+  @@map("staff")
+  @@index([role])
+  @@index([isActive])
+}
+
+model CalendarBlock {
+  id                Int                @id @default(autoincrement())
+  createdAt         DateTime           @default(now()) @map("created_date")
+  updatedAt         DateTime           @updatedAt @map("updated_date")
+  createdBy         Int?               @map("created_by")
+  title             String
+  startDatetime     DateTime           @map("start_datetime")
+  endDatetime       DateTime           @map("end_datetime")
+  isRecurring       Boolean            @default(false) @map("is_recurring")
+  recurrencePattern RecurrencePattern? @map("recurrence_pattern")
+  recurrenceEndDate DateTime?          @map("recurrence_end_date")
+  blockType         BlockType          @map("block_type")
+  staffId           Int?               @map("staff_id")
+  notes             String?
+  isActive          Boolean            @default(true) @map("is_active")
+
+  createdByUser User?  @relation("CalendarBlockCreatedBy", fields: [createdBy], references: [id])
+  staff         Staff? @relation(fields: [staffId], references: [id])
+
+  @@map("calendar_blocks")
+  @@index([blockType])
+  @@index([staffId])
+  @@index([isActive])
+}
+
+model Booking {
+  id                 Int           @id @default(autoincrement())
+  createdAt          DateTime      @default(now()) @map("created_date")
+  updatedAt          DateTime      @updatedAt @map("updated_date")
+  createdBy          Int?          @map("created_by")
+  enquiryId          Int?          @map("enquiry_id")
+  bookingType        BookingType   @map("booking_type")
+  scheduledDatetime  DateTime      @map("scheduled_datetime")
+  durationMinutes    Int?          @map("duration_minutes")
+  staffId            Int?          @map("staff_id")
+  vehicleId          Int?          @map("vehicle_id")
+  vehicleSnapshot    Json?         @map("vehicle_snapshot")
+  customerName       String?       @map("customer_name")
+  customerEmail      String?       @map("customer_email")
+  customerPhone      String?       @map("customer_phone")
+  status             BookingStatus @default(pending)
+  confirmationSent   Boolean       @default(false) @map("confirmation_sent")
+  reminderSent       Boolean       @default(false) @map("reminder_sent")
+  notes              String?
+  customerNotes      String?       @map("customer_notes")
+  cancellationReason String?       @map("cancellation_reason")
+  cancelledAt        DateTime?     @map("cancelled_at")
+
+  createdByUser User?    @relation("BookingCreatedBy", fields: [createdBy], references: [id])
+  enquiry       Enquiry? @relation(fields: [enquiryId], references: [id])
+  staff         Staff?   @relation(fields: [staffId], references: [id])
+  vehicle       Vehicle? @relation(fields: [vehicleId], references: [id])
+
+  @@map("bookings")
+  @@index([enquiryId])
+  @@index([staffId])
+  @@index([vehicleId])
+  @@index([bookingType])
+  @@index([status])
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_date")
+  updatedAt DateTime @updatedAt @map("updated_date")
+  createdBy Int?     @map("created_by")
+  fullName  String   @map("full_name")
+  email     String   @unique
+  role      UserRole @default(USER)
+
+  createdByUser         User?           @relation("UserCreatedBy", fields: [createdBy], references: [id])
+  createdUsers          User[]          @relation("UserCreatedBy")
+  vehiclesCreated       Vehicle[]       @relation("VehicleCreatedBy")
+  enquiriesCreated      Enquiry[]       @relation("EnquiryCreatedBy")
+  staffCreated          Staff[]         @relation("StaffCreatedBy")
+  calendarBlocksCreated CalendarBlock[] @relation("CalendarBlockCreatedBy")
+  bookingsCreated       Booking[]       @relation("BookingCreatedBy")
+
+  @@map("users")
+  @@index([role])
 }
