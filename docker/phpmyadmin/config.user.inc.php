@@ -1,12 +1,19 @@
 <?php
 
-$host = getenv('PMA_HOST') ?: 'db';
-$port = getenv('PMA_PORT') ?: '3306';
-$user = getenv('PMA_USER') ?: getenv('MYSQL_USER') ?: 'root';
-$password = getenv('PMA_PASSWORD') ?: getenv('MYSQL_PASSWORD') ?: '';
+$host = trim(getenv('PMA_HOST') ?: 'db');
+$portEnv = getenv('PMA_PORT');
+$port = is_numeric($portEnv) ? (int) $portEnv : 3306;
+$user = trim(getenv('PMA_USER') ?: getenv('MYSQL_USER') ?: '');
+$password = trim(getenv('PMA_PASSWORD') ?: getenv('MYSQL_PASSWORD') ?: '');
+
+if ($user === '') {
+    http_response_code(500);
+    die('phpMyAdmin auto-login requires a database user. Set PMA_USER or MYSQL_USER.');
+}
 
 if ($password === '') {
-    exit('phpMyAdmin auto-login requires a database password. Set PMA_PASSWORD or MYSQL_PASSWORD.');
+    http_response_code(500);
+    die('phpMyAdmin auto-login requires a database password. Set PMA_PASSWORD or MYSQL_PASSWORD.');
 }
 
 $cfg['Servers'][1]['host'] = $host;
