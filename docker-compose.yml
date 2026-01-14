@@ -51,6 +51,8 @@ services:
       PMA_HOST: db
       PMA_PORT: 3306
       PMA_DATABASE: ${MYSQL_DATABASE:-absdb}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       PMA_ARBITRARY: 0
     ports:
       - "8080:80"
