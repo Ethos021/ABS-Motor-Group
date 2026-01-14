@@ -49,8 +49,6 @@ services:
         condition: service_healthy
     environment:
       PMA_HOST: db
-      PMA_USER: ${MYSQL_USER}
-      PMA_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "8080:80"
 
