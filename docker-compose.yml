@@ -49,6 +49,7 @@ services:
         condition: service_healthy
     environment:
       PMA_HOST: db
+      PMA_ARBITRARY: 1
     ports:
       - "8080:80"
 
