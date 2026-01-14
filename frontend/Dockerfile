@@ -1,5 +1,5 @@
 # Frontend Dockerfile
-FROM node:20-alpine
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -13,8 +13,14 @@ ARG VITE_API_URL=http://localhost:4000/api
 ENV VITE_API_URL=${VITE_API_URL}
 RUN npm run build
 
-# Expose the Vite preview port
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+RUN npm install -g serve
+COPY --from=builder /app/dist ./dist
+
+# Expose the web port
 EXPOSE 5173
 
 # Serve the built assets
-CMD ["npx", "vite", "preview", "--host", "0.0.0.0", "--port", "5173"]
+CMD ["serve", "-s", "dist", "-l", "5173"]

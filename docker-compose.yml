@@ -29,7 +29,6 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
     ports:
       - "4000:4000"
-    command: ./docker-entrypoint.sh
 
   frontend:
     build:
