@@ -1,6 +1,10 @@
 <?php
 
-$validateHost = static function (string $host): bool {
+$hostPattern = '/^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$/'; // docker service name or hostname label
+$userPattern = '/^[A-Za-z0-9_][A-Za-z0-9_.-]*$/'; // MySQL user with alphanumerics, underscores, dots, hyphens
+$minPasswordLength = 8;
+
+$validateHost = static function (string $host) use ($hostPattern): bool {
     if (filter_var($host, FILTER_VALIDATE_IP) !== false) {
         return true;
     }
@@ -9,7 +13,7 @@ $validateHost = static function (string $host): bool {
         return true;
     }
 
-    return (bool) preg_match('/^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$/', $host);
+    return (bool) preg_match($hostPattern, $host);
 };
 
 $host = trim(getenv('PMA_HOST') ?: 'db');
@@ -29,7 +33,7 @@ if ($user === '') {
     die('phpMyAdmin auto-login requires a database user. Set PMA_USER or MYSQL_USER.');
 }
 
-if (!preg_match('/^[A-Za-z0-9_][A-Za-z0-9_.-]*$/', $user)) {
+if (!preg_match($userPattern, $user)) {
     http_response_code(400);
     die('phpMyAdmin auto-login requires a safe database user name (letters, numbers, underscores, dots, and hyphens).');
 }
@@ -39,9 +43,9 @@ if ($password === '') {
     die('phpMyAdmin auto-login requires a database password. Set PMA_PASSWORD or MYSQL_PASSWORD.');
 }
 
-if (strlen($password) < 8) {
+if (strlen($password) < $minPasswordLength) {
     http_response_code(400);
-    die('phpMyAdmin auto-login requires a database password of at least 8 characters.');
+    die("phpMyAdmin auto-login requires a database password of at least {$minPasswordLength} characters.");
 }
 
 $cfg['Servers'][1]['host'] = $host;
