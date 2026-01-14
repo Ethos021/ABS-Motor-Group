@@ -1,5 +1,17 @@
 <?php
 
+$validateHost = static function (string $host): bool {
+    if (filter_var($host, FILTER_VALIDATE_IP) !== false) {
+        return true;
+    }
+
+    if (filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false) {
+        return true;
+    }
+
+    return (bool) preg_match('/^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$/', $host);
+};
+
 $host = trim(getenv('PMA_HOST') ?: 'db');
 $portEnv = getenv('PMA_PORT');
 $port = is_numeric($portEnv) ? (int) $portEnv : 3306;
@@ -7,11 +19,7 @@ $port = ($port >= 1 && $port <= 65535) ? $port : 3306;
 $user = trim(getenv('PMA_USER') ?: getenv('MYSQL_USER') ?: '');
 $password = trim(getenv('PMA_PASSWORD') ?: getenv('MYSQL_PASSWORD') ?: '');
 
-$hostIsValid = filter_var($host, FILTER_VALIDATE_IP) !== false
-    || filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false
-    || preg_match('/^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$/', $host);
-
-if (!$hostIsValid) {
+if (!$validateHost($host)) {
     http_response_code(400);
     die('phpMyAdmin auto-login requires a valid host for PMA_HOST (e.g., db, localhost, or an IP address).');
 }
@@ -21,9 +29,9 @@ if ($user === '') {
     die('phpMyAdmin auto-login requires a database user. Set PMA_USER or MYSQL_USER.');
 }
 
-if (!preg_match('/^[A-Za-z0-9][A-Za-z0-9_]*$/', $user)) {
+if (!preg_match('/^[A-Za-z0-9_][A-Za-z0-9_.-]*$/', $user)) {
     http_response_code(400);
-    die('phpMyAdmin auto-login requires a safe database user name (letters, numbers, and underscores).');
+    die('phpMyAdmin auto-login requires a safe database user name (letters, numbers, underscores, dots, and hyphens).');
 }
 
 if ($password === '') {
@@ -31,9 +39,9 @@ if ($password === '') {
     die('phpMyAdmin auto-login requires a database password. Set PMA_PASSWORD or MYSQL_PASSWORD.');
 }
 
-if (strlen($password) < 4) {
+if (strlen($password) < 8) {
     http_response_code(400);
-    die('phpMyAdmin auto-login requires a database password of at least 4 characters.');
+    die('phpMyAdmin auto-login requires a database password of at least 8 characters.');
 }
 
 $cfg['Servers'][1]['host'] = $host;
