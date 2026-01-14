@@ -132,6 +132,8 @@ const normalizeBookingPayload = (
     normalized.bookingType ??= BookingType.test_drive;
     normalized.status ??= BookingStatus.pending;
     normalized.durationMinutes ??= 60;
+    normalized.customerName ??= "Customer";
+    normalized.customerPhone ??= "N/A";
   }
 
   return normalized;

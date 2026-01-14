@@ -394,7 +394,7 @@ const buildStaffPayload = (input = {}, applyDefaults = true) => {
   const payload = {};
   const fullName =
     (input.fullName ?? input.full_name ?? "").toString().trim() ||
-    (applyDefaults ? undefined : undefined);
+    (applyDefaults ? "Staff Member" : undefined);
   if (fullName) payload.fullName = fullName;
   if (input.email) payload.email = input.email;
   if (input.phone) payload.phone = input.phone;
