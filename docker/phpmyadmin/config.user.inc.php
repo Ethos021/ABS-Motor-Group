@@ -9,7 +9,7 @@ $password = trim(getenv('PMA_PASSWORD') ?: getenv('MYSQL_PASSWORD') ?: '');
 
 $hostIsValid = filter_var($host, FILTER_VALIDATE_IP) !== false
     || filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false
-    || preg_match('/^[A-Za-z0-9.-]+$/', $host);
+    || preg_match('/^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$/', $host);
 
 if (!$hostIsValid) {
     http_response_code(400);
@@ -21,9 +21,9 @@ if ($user === '') {
     die('phpMyAdmin auto-login requires a database user. Set PMA_USER or MYSQL_USER.');
 }
 
-if (!preg_match('/^[A-Za-z0-9._-]+$/', $user)) {
+if (!preg_match('/^[A-Za-z0-9][A-Za-z0-9_-]*$/', $user)) {
     http_response_code(400);
-    die('phpMyAdmin auto-login requires a safe database user name (letters, numbers, dots, underscores, and hyphens).');
+    die('phpMyAdmin auto-login requires a safe database user name (letters, numbers, underscores, and hyphens).');
 }
 
 if ($password === '') {
