@@ -124,7 +124,7 @@ CREATE TABLE `sales` (
     `customerId` INTEGER NOT NULL,
     `dealerId` INTEGER NULL,
     `sale_date` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `sale_price` DECIMAL(10, 2) NOT NULL,
+    `sale_price` DECIMAL(12, 2) NOT NULL,
     `notes` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
@@ -319,4 +319,3 @@ ALTER TABLE `bookings` ADD CONSTRAINT `bookings_vehicle_id_fkey` FOREIGN KEY (`v
 
 -- AddForeignKey
 ALTER TABLE `users` ADD CONSTRAINT `users_created_by_fkey` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-

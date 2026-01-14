@@ -219,7 +219,7 @@ model Sale {
   customerId Int
   dealerId   Int?
   saleDate   DateTime @default(now()) @map("sale_date")
-  salePrice  Decimal  @map("sale_price") @db.Decimal(10, 2)
+  salePrice  Decimal  @map("sale_price") @db.Decimal(12, 2)
   notes      String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
