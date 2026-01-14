@@ -50,8 +50,6 @@ services:
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      PMA_USER: ${MYSQL_USER}
-      PMA_PASSWORD: ${MYSQL_PASSWORD}
       PMA_DATABASE: ${MYSQL_DATABASE:-absdb}
       PMA_ARBITRARY: 0
     ports:
