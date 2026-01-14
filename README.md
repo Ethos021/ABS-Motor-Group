@@ -3,16 +3,17 @@
 ## Run with Docker
 
 1. Install Docker and Docker Compose.
-2. From the repository root run:
+2. Copy `.env.example` to `.env` and adjust values if needed.
+3. From the repository root run:
    ```bash
    docker compose up --build
    ```
-3. The frontend is available at http://localhost:5173 and the API at http://localhost:4000/api.
+4. The frontend is available at http://localhost:5173 and the API at http://localhost:4000/api.
 
 The compose file starts:
-- MySQL with the `abs_motor_group` database (user `abs_user` / `abs_password`).
-- The backend service, which applies Prisma migrations and seeds demo data automatically.
-- The frontend service, built with `VITE_API_URL=http://localhost:4000/api`.
+- MySQL with the `abs_motor_group` database (credentials come from `.env`).
+- The backend service, which applies Prisma migrations and seeds demo data automatically via `docker-entrypoint.sh`.
+- The frontend service, built with `VITE_API_URL` from `.env`.
 
 ## Local development (without Docker)
 

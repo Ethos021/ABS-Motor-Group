@@ -3,10 +3,10 @@ services:
     image: mysql:8.0
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: abs_motor_group
-      MYSQL_USER: abs_user
-      MYSQL_PASSWORD: abs_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -23,19 +23,19 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: mysql://abs_user:abs_password@db:3306/abs_motor_group
-      PORT: 4000
-      CORS_ORIGIN: http://localhost:5173
-      NODE_ENV: development
+      DATABASE_URL: ${DATABASE_URL}
+      PORT: ${PORT:-4000}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      NODE_ENV: ${NODE_ENV:-development}
     ports:
       - "4000:4000"
-    command: sh -c "set -e; npx prisma migrate deploy && npm run prisma:seed && npm start"
+    command: ./docker-entrypoint.sh
 
   frontend:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: http://localhost:4000/api
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:4000/api}
     depends_on:
       - backend
     ports:

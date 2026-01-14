@@ -9,7 +9,7 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install dependencies
-RUN npm install
+RUN npm ci
 
 # Generate Prisma Client
 RUN npx prisma generate
@@ -20,6 +20,9 @@ COPY . .
 # Build the TypeScript source
 RUN npm run build
 
+# Make entrypoint executable
+RUN chmod +x docker-entrypoint.sh
+
 # Create uploads directory
 RUN mkdir -p /tmp/uploads
 
@@ -27,4 +30,4 @@ RUN mkdir -p /tmp/uploads
 EXPOSE 4000
 
 # Start command
-CMD ["npm", "start"]
+CMD ["./docker-entrypoint.sh"]
