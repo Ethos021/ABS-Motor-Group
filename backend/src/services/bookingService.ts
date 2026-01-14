@@ -12,10 +12,10 @@ const toStringIfPresent = (value: unknown): string | undefined => {
 
 const toNumber = (value: unknown): number | undefined => {
   if (value === undefined || value === null || value === "") return undefined;
-  const parsed =
-    typeof value === "string"
-      ? Number(value.replace(/[^\d.-]/g, ""))
-      : Number(value);
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  const stringValue = typeof value === "string" ? value : String(value);
+  const match = stringValue.match(/-?\d+(\.\d+)?/);
+  const parsed = match ? Number(match[0]) : Number(stringValue);
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
@@ -79,7 +79,7 @@ export const bookingSchema = baseBookingSchema.extend({
   bookingType: z.nativeEnum(BookingType),
   scheduledDatetime: z.coerce.date(),
   customerName: z.string().min(1),
-  customerPhone: z.string().min(1),
+  customerPhone: z.string().min(1).optional(),
 });
 
 export const bookingUpdateSchema = baseBookingSchema;
@@ -133,7 +133,6 @@ const normalizeBookingPayload = (
     normalized.status ??= BookingStatus.pending;
     normalized.durationMinutes ??= 60;
     normalized.customerName ??= "Customer";
-    normalized.customerPhone ??= "N/A";
   }
 
   return normalized;

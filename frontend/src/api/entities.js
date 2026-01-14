@@ -55,10 +55,10 @@ export const Sale = {
 
 const toNumber = (value) => {
   if (value === undefined || value === null || value === "") return undefined;
-  const parsed =
-    typeof value === "string"
-      ? Number(value.replace(/[^\d.-]/g, ""))
-      : Number(value);
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  const stringValue = typeof value === "string" ? value : String(value);
+  const match = stringValue.match(/-?\d+(\.\d+)?/);
+  const parsed = match ? Number(match[0]) : Number(stringValue);
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
@@ -137,12 +137,17 @@ const buildEnquiryPayload = (input = {}, applyDefaults = true) => {
     }) ?? (applyDefaults ? "general" : undefined);
   if (enquiryType) payload.enquiryType = enquiryType;
 
-  const firstName =
-    (input.firstName ?? input.first_name ?? input.name ?? "").toString().trim() ||
-    (applyDefaults ? "Customer" : undefined);
-  const lastName =
-    (input.lastName ?? input.last_name ?? input.surname ?? "").toString().trim() ||
-    (applyDefaults ? "Enquiry" : undefined);
+  let firstName = (input.firstName ?? input.first_name ?? "").toString().trim();
+  let lastName = (input.lastName ?? input.last_name ?? input.surname ?? "").toString().trim();
+
+  if (!firstName && !lastName && input.name) {
+    const parts = input.name.toString().trim().split(/\s+/);
+    firstName = parts[0] ?? "";
+    lastName = parts.slice(1).join(" ");
+  }
+
+  if (!firstName && applyDefaults) firstName = "Customer";
+  if (!lastName && applyDefaults) lastName = "Enquiry";
   if (firstName) payload.firstName = firstName;
   if (lastName) payload.lastName = lastName;
 
@@ -328,9 +333,9 @@ const buildBookingPayload = (input = {}, applyDefaults = true) => {
   if (input.customerEmail ?? input.customer_email)
     payload.customerEmail = input.customerEmail ?? input.customer_email;
 
-  const customerPhone =
-    (input.customerPhone ?? input.customer_phone ?? "").toString().trim() ||
-    (applyDefaults ? "N/A" : undefined);
+  const customerPhone = (input.customerPhone ?? input.customer_phone ?? "")
+    .toString()
+    .trim();
   if (customerPhone) payload.customerPhone = customerPhone;
 
   const status = mapBookingStatus(input.status);

@@ -23,10 +23,10 @@ const toBoolean = (value: unknown): boolean | undefined => {
 
 const toNumber = (value: unknown): number | undefined => {
   if (value === undefined || value === null || value === "") return undefined;
-  const parsed =
-    typeof value === "string"
-      ? Number(value.replace(/[^\d.-]/g, ""))
-      : Number(value);
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  const stringValue = typeof value === "string" ? value : String(value);
+  const match = stringValue.match(/-?\d+(\.\d+)?/);
+  const parsed = match ? Number(match[0]) : Number(stringValue);
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
