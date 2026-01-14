@@ -6,18 +6,19 @@ async function main() {
   console.log("Seeding database with demo data...");
 
   const dealer = await prisma.dealer.upsert({
-    where: { name: "ABS Motor Group Main" },
-    update: {},
-    create: {
-      name: "ABS Motor Group Main",
-      email: "info@absmotorgroup.com",
-      phone: "+61 400 123 456",
-      address: "123 Example Street",
-      city: "Melbourne",
-      state: "VIC",
-      country: "Australia",
-    },
-  });
+  where: { id: 1 },     // use the unique primary key
+  update: {},
+  create: {
+    id: 1,              // ensure this id is used on first insert
+    name: "ABS Motor Group Main",
+    email: "info@absmotorgroup.com",
+    phone: "+61 400 123 456",
+    address: "123 Example Street",
+    city: "Melbourne",
+    state: "VIC",
+    country: "Australia",
+  },
+});
 
   const customers = await prisma.$transaction([
     prisma.customer.upsert({
