@@ -10,6 +10,10 @@ import { dealerRouter } from "./routes/dealers.js";
 import { customerRouter } from "./routes/customers.js";
 import { salesRouter } from "./routes/sales.js";
 import { csvRouter } from "./routes/csv.js";
+import { enquiryRouter } from "./routes/enquiries.js";
+import { bookingRouter } from "./routes/bookings.js";
+import { staffRouter } from "./routes/staff.js";
+import { calendarBlockRouter } from "./routes/calendarBlocks.js";
 
 const app = express();
 
@@ -34,6 +38,10 @@ app.use("/api/dealers", dealerRouter);
 app.use("/api/customers", customerRouter);
 app.use("/api/sales", salesRouter);
 app.use("/api/csv", csvRouter);
+app.use("/api/enquiries", enquiryRouter);
+app.use("/api/bookings", bookingRouter);
+app.use("/api/staff", staffRouter);
+app.use("/api/calendar-blocks", calendarBlockRouter);
 
 app.use(notFound);
 app.use(errorHandler);
