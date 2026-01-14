@@ -12,11 +12,7 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "mysqladmin ping -h localhost -u$MYSQL_USER -p$MYSQL_PASSWORD",
-        ]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -31,6 +27,7 @@ services:
       PORT: ${PORT:-4000}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
       NODE_ENV: ${NODE_ENV:-development}
+      SKIP_SEED: ${SKIP_SEED:-false}
     ports:
       - "4000:4000"
 
