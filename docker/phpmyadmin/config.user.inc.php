@@ -9,16 +9,21 @@ $password = trim(getenv('PMA_PASSWORD') ?: getenv('MYSQL_PASSWORD') ?: '');
 
 $hostIsValid = filter_var($host, FILTER_VALIDATE_IP) !== false
     || filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false
-    || preg_match('/^[A-Za-z0-9._-]+$/', $host);
+    || preg_match('/^[A-Za-z0-9.-]+$/', $host);
 
 if (!$hostIsValid) {
     http_response_code(400);
-    die('phpMyAdmin auto-login requires a valid host for PMA_HOST.');
+    die('phpMyAdmin auto-login requires a valid host for PMA_HOST (e.g., db, localhost, or an IP address).');
 }
 
 if ($user === '') {
     http_response_code(400);
     die('phpMyAdmin auto-login requires a database user. Set PMA_USER or MYSQL_USER.');
+}
+
+if (!preg_match('/^[A-Za-z0-9._-]+$/', $user)) {
+    http_response_code(400);
+    die('phpMyAdmin auto-login requires a safe database user name (letters, numbers, dots, underscores, and hyphens).');
 }
 
 if ($password === '') {
