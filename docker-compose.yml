@@ -50,8 +50,12 @@ services:
     environment:
       PMA_HOST: db
       PMA_ARBITRARY: 1
+      PMA_USER: ${MYSQL_USER}
+      PMA_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "8080:80"
+    volumes:
+      - ./docker/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php:ro
 
 volumes:
   db_data:

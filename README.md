@@ -14,7 +14,7 @@ The compose file starts:
 - MySQL with the `abs_motor_group` database (credentials come from `.env`).
 - The backend service, which applies Prisma migrations and seeds demo data automatically via `docker-entrypoint.sh` (set `SKIP_SEED=true` to skip reseeding).
 - The frontend service, built with `VITE_API_URL` from `.env`.
-- phpMyAdmin at http://localhost:8080 for viewing the MySQL database (log in with the same credentials from `.env`).
+- phpMyAdmin at http://localhost:8080 for viewing the MySQL database (auto-logs in using the credentials from `.env`, no login form).
 
 ## Local development (without Docker)
 
