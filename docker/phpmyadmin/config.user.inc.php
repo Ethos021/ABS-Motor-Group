@@ -21,14 +21,19 @@ if ($user === '') {
     die('phpMyAdmin auto-login requires a database user. Set PMA_USER or MYSQL_USER.');
 }
 
-if (!preg_match('/^[A-Za-z0-9][A-Za-z0-9_-]*$/', $user)) {
+if (!preg_match('/^[A-Za-z0-9][A-Za-z0-9_]*$/', $user)) {
     http_response_code(400);
-    die('phpMyAdmin auto-login requires a safe database user name (letters, numbers, underscores, and hyphens).');
+    die('phpMyAdmin auto-login requires a safe database user name (letters, numbers, and underscores).');
 }
 
 if ($password === '') {
     http_response_code(400);
     die('phpMyAdmin auto-login requires a database password. Set PMA_PASSWORD or MYSQL_PASSWORD.');
+}
+
+if (strlen($password) < 4) {
+    http_response_code(400);
+    die('phpMyAdmin auto-login requires a database password of at least 4 characters.');
 }
 
 $cfg['Servers'][1]['host'] = $host;
